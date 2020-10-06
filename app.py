@@ -40,6 +40,8 @@ app = Flask(__name__)
 # Definining global variables.
 historical_debt_outstanding_annual = None
 historical_debt_outstanding_annual_years = None
+hostname = "localhost"
+port = "5000"
 
 # Index page. 
 @app.route("/")      
@@ -271,13 +273,15 @@ def udemy_years():
     finally:
         if conn is not None:
             conn.close
-                
+                    
 # Historical Debt Outstanding Annual View Function.
 @app.route("/debt")   
 def debt():
     return render_template("historical_debt_outstanding_annual.html",
         project_name="Historical Debt Outstanding Annual",
-        current_time=datetime.datetime.utcnow())
+        current_time=datetime.datetime.utcnow(),
+        hostname=hostname,
+        port=port)
 
 # Get Historical Debt Outstanding Annual Data.
 @app.route("/historical_debt_outstanding_annual", methods=['GET'])
@@ -570,15 +574,18 @@ if __name__ == "__main__":
 
     bootstrap = Bootstrap(app)
     moment = Moment(app)
-    
+      
     if (hostname == 'XPS'):
+        print(" ")
+        print("XPS")
+        # app.run(debug=False, host='localhost', port=5000)
         app.run(debug=False, use_reloader=True)
     elif (hostname == 'DESKTOP-S08TN4O'):  
         app.run(debug=False, use_reloader=True)
     else:
         print(" ")
         print("Heroku:")
-        print("Port", os.environ.get("PORT", "Not Found"))
+        print("port", os.environ.get("PORT", "Not Found"))
         print("hostname:", hostname)
         app.run(debug=False, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
 

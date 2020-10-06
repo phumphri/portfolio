@@ -58,6 +58,8 @@
         port = ":5000"
         end_point = "/historical_debt_outstanding_annual_years"
         url = host + port + end_point
+        url = end_point
+        console.log("url:", url)
 
 
         // Build the SVG when a valid response is returned.
@@ -85,6 +87,8 @@
         begin_year_parameter = "?begin_year=" + begin_year
         end_year_parameter = "&end_year=" + end_year
         url = host + port + end_point + begin_year_parameter + end_year_parameter
+        url = end_point + begin_year_parameter + end_year_parameter
+        console.log("url:", url)
 
 
         // Build the SVG when a valid response is returned.
