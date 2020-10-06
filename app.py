@@ -576,6 +576,9 @@ if __name__ == "__main__":
     elif (hostname == 'DESKTOP-S08TN4O'):  
         app.run(debug=False, use_reloader=True)
     else:
+        print(" ")
+        print("Heroku:")
         print("Port", os.environ.get("PORT", "Not Found"))
+        print("hostname:", hostname)
         app.run(debug=False, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
 
