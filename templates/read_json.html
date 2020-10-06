@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block body %}
+{{ super() }}
+<div id="id01"></div>
+
+<script>
+var xmlhttp = new XMLHttpRequest();
+var url = "http://localhost:5000/mortgage";
+
+xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        var mortgage_dictionary = JSON.parse(this.responseText);
+        myFunction(mortgage_dictionary);
+    }
+};
+xmlhttp.open("GET", url, true);
+xmlhttp.send();
+
+function myFunction(mortgage_dictionary) {
+    var balance = mortgage_dictionary["balance"][0]
+    document.getElementById("id01").innerHTML = balance;
+}
+</script>
+{% endblock %}

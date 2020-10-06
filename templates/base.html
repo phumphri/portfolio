@@ -1,0 +1,31 @@
+{% extends "bootstrap/base.html" %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/floaters.css') }}" />
+<link rel="shortcut icon" href="https://www.usc.edu/favicon.ico" />
+<link rel="favicon" href="https://www.usc.edu/favicon.ico" /> 
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment() }}
+{% endblock %}
+
+
+{% block body %}
+{{ super() }}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-9">
+            <h1>{{ project_name }}</h1>   
+        </div>
+        <div class="col-sm-3">
+            <p>Patrick Humphries, M.B.A.<br />
+                {{ moment(current_time).format('LLL') }}, {{ moment(current_time).fromNow(refresh = True) }}.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

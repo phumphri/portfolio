@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block title %}
+Humphries Portfolio
+{% endblock %}
+
+{% block head %}
+{{ super() }}
+<!-- Data Driven Documents -->
+<script src="https://d3js.org/d3.v5.js"></script>
+
+<script type="text/javascript">
+
+    chart = {
+        const svg = d3.create("svg")
+            .attr("viewBox", [0, 0, width, height])
+            .attr("stroke-width", 2);
+
+        const circles = d3.range(20).map(i => ({
+            x: Math.random() * (width - radius * 2) + radius,
+            y: Math.random() * (height - radius * 2) + radius,
+        }));
+
+        svg.selectAll("circle")
+            .data(circles)
+            .join("circle")
+            .attr("cx", d => d.x)
+            .attr("cy", d => d.y)
+            .attr("r", radius)
+            .attr("fill", (d, i) => d3.schemeCategory10[i % 10])
+            .call(drag);
+
+        return svg.node();
+    }
+    
+    drag = {
+
+        function dragstarted(d) {
+            d3.select(this).raise().attr("stroke", "black");
+            }
+
+        function dragged(d) {
+            d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+            }
+
+        function dragended(d) {
+            d3.select(this).attr("stroke", null);
+            }
+
+        return d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended);
+    } 
+
+</script>
+{% endblock %}
+
+{% block body %}
+{{ super() }}
+
+Boffo!
+
+<svg viewBox="0 0 500 500" height="100%">
+    <rect id="it" x="50" y="50" width="200" height="50" fill="blue"/>
+</svg>
+
+{% endblock %}

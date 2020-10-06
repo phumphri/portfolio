@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block body %}
+{{ super() }}
+<div class="container-fluid">
+    <h3>Sorry. A serious processing error was encountered.</h3>
+    <fieldset>
+        <legend>Instructions</legend>
+        <p>Consider just entering the server URL.<br />
+            That should take you to the home page.</p>
+    </fieldset>
+    <fieldset>
+        <legend>Message from the Application</legend>
+        <h3>{{ message_from_the_application }}</h3>
+    </fieldset>
+</div>
+{% endblock %}
