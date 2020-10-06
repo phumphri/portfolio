@@ -40,7 +40,6 @@ oauthlib==3.1.0
 opt-einsum==3.2.0
 pandas==1.0.3
 Pillow==7.1.1
-pomegranate==0.12.2
 protobuf==3.11.3
 psycopg2==2.8.5
 pyasn1==0.4.8
