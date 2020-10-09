@@ -12,7 +12,7 @@
 
 {% endblock %}
 
-{% block title %}National Debt{% endblock %}
+{% block title %}National Budget{% endblock %}
 
 {% block body %}
 {{ super() }}
@@ -26,19 +26,20 @@
     svgRow.width = 500
     svgRow.height = 500
     svg = null
-    annual_debt = []
+    receipts_less_outlays = []
     topMargin = 1 - 0.05
     leftMargin = 0.05
     rightMargin = 0.05
     bottomMargin = 1.00 - 0.05
     scale_year = null
-    scaleDebt = null
+    scaleBudget = null
     xAxis = d3.axisBottom()
     yAxis = d3.axisRight()
     yAxisScale = null
     begin_year = 2009
     end_year = 2020
     years = []
+    scale_text = "placeholder"
 
 
 
@@ -48,72 +49,57 @@
     // var baseline = h
     var padding = 2;        // Add spaces around the bars.
 
-    // Get Historical Debt Outstanding Annual Years.
-    function get_historical_debt_outstanding_annual_years() {
 
-        console.log("get_historical_debt_outstanding_annual_years()")
+    // Get Budget Data.
+    function get_budget() {
+
+        console.log("get_budget")
 
         var xmlhttp = new XMLHttpRequest()
-        host = "http://localhost"
-        port = ":5000"
-        end_point = "/historical_debt_outstanding_annual_years"
-        url = host + port + end_point
-        url = end_point
+        url = "/receipts_less_outlays_data?begin_year=" + begin_year + "&end_year=" + end_year
         console.log("url:", url)
-
 
         // Build the SVG when a valid response is returned.
         xmlhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
-                years = JSON.parse(this.responseText);
-            }
-        };
 
-        // Send the request and wait for the valid response.
-        xmlhttp.open("GET", url, true);
-        xmlhttp.send();
-    }
-
-
-    // Get Historical Debt Outstanding Annual.
-    function get_historical_debt_outstanding_annual() {
-
-        console.log("get_historical_debt_outstanding_annual")
-
-        var xmlhttp = new XMLHttpRequest()
-        host = "http://localhost"
-        port = ":5000"
-        end_point = "/historical_debt_outstanding_annual"
-        begin_year_parameter = "?begin_year=" + begin_year
-        end_year_parameter = "&end_year=" + end_year
-        url = host + port + end_point + begin_year_parameter + end_year_parameter
-        url = end_point + begin_year_parameter + end_year_parameter
-        console.log("url:", url)
-
-
-        // Build the SVG when a valid response is returned.
-        xmlhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                data = JSON.parse(this.responseText);
+                // Reset the dataset
                 dataset = []
+
+                response = JSON.parse(this.responseText);
+                console.log(" ")
+                console.log("response:")
+                console.log(response)
+
+                years = response["years"]
+                console.log(" ")
+                console.log("years:")
+                console.log(years)
+
+                data = response["data"]
+                console.log(" ")
+                console.log("data:")
+                console.log(data)
+
+                scale_text = response["scale"]["text"]
 
                 // Convert the volume strings to type integer.
                 // Conver the date string to type date.
-                for (var i = 0; i < data.length; i++) {
+                i = 0
+                for (year in data) {
                     dataset[i] = {}
-                    dataset[i]["year"] = parseInt(data[i]["reporting_calendar_year"])
-                    dataset[i]["president"] = data[i]["president"]
-                    dataset[i]["color"] = data[i]["color"]
-                    var o = parseInt(data[i]["debt_outstanding_amt"])
-                    if (end_year < "1863") {
-                        o = o / 1000000
-                    } else if (end_year < "1983") {
-                        o = o / 1000000000
-                    } else {
-                        o = o / 1000000000000
-                    }
-                    dataset[i]["debt"] = o
+                    dataset[i]["year"] = year
+                    dataset[i]["president"] = data[year]["president"]
+                    dataset[i]["color"] = data[year]["color"]
+                    var o = parseInt(data[year]["value"])
+                    o = o / response["scale"]["divisor"]
+                    dataset[i]["budget"] = o
+                    i++
                 }
+                console.log(" ")
+                console.log("dataset:")
+                console.log(dataset)
+
                 if (resize) {
                     createSVG()
                 } else {
@@ -127,20 +113,31 @@
         xmlhttp.send();
     }
 
-    function create_annual_debt() {
+    function create_budget_visualization() {
+
+        console.log(" ")
+        console.log("Enter create_budget_visualization().")
+        console.log("dataset.length:", dataset.length)
+        console.log("dataset:")
+        console.log(dataset)
 
         // Initialize monthly sales.
-        annual_debt = []
+        receipts_less_outlays = []
 
         // Calculate the vertical scale based on sales volume and row height.
-        var maxDebt = d3.max(dataset, function (d) { return d["debt"] })
-        var minDebt = d3.min(dataset, function (d) { return d["debt"] })
-        scaleDebt = d3.scaleLinear()
-            .domain([0, maxDebt])
-            .rangeRound([0, (svgRow.height * topMargin)])
+        var maxBudget = d3.max(dataset, function (d) { return d["budget"] })
+        var minBudget = d3.min(dataset, function (d) { return d["budget"] })
+        console.log(" ")
+        console.log("minBudget:", minBudget, 'maxBudget:', maxBudget)
+        scaleBudget = d3.scaleLinear()
+            .domain([minBudget, 0])
+            .rangeRound([(250 * bottomMargin), 0])
         yAxisScale = d3.scaleLinear()
-            .domain([0, maxDebt])
-            .rangeRound([(svgRow.height * topMargin), 0])
+            .domain([minBudget, (minBudget * -1)])
+            .rangeRound([(500 * bottomMargin * bottomMargin), 0])
+        console.log(" ")
+        console.log("yAxisScale(minBudget):", yAxisScale(minBudget))
+        console.log("yAxisScale(maxBudget):", yAxisScale(maxBudget))
 
         // Calculate the horizontal scale based on year and row width.
         // Last date would be positioned at the edge of the svg.
@@ -162,22 +159,24 @@
             // Height is used to draw a rectangle from y DOWN.
             // y is the top of the rectangle:  Bottom of the chart then up by the height.
             // The bottomMargin shrinks the bars up from the bottom of the svg.
+            d.budget = dataset[i]["budget"]
             d.width = parseInt((svgRow.width / dataset.length * 0.8).toFixed(0))
-            d.height = parseInt((scaleDebt(dataset[i]["debt"]) * bottomMargin).toFixed(0))
+            d.height = parseInt((scaleBudget(dataset[i]["budget"]) * bottomMargin).toFixed(0))
             d.x = parseInt(scale_year(dataset[i]["year"]).toFixed(0))
-            d.y = (500 * bottomMargin) - d.height;
+            d.y = 250
             d.president = dataset[i]["president"]
             d.color = dataset[i]["color"]
 
             // Bar text
             d.text_x = d.x + d.width / 2;
-            d.text = dataset[i]["debt"].toFixed(1)
+            d.text = dataset[i]["budget"].toFixed(1)
 
             // Horizontal sales date 
             d.year_x = parseInt(scale_year(dataset[i]["year"]).toFixed(0));
-            annual_debt.push(d)
+            receipts_less_outlays.push(d)
         }
-
+        console.log("receipts_less_outlays:")
+        console.log(receipts_less_outlays)
     }
 
     function createSVG() {
@@ -218,11 +217,11 @@
         // Create chart attributes based on raw sales data and visualization attributes.
         // This takes more memory.  Simpler code during plotting.  Calculate only once.
         // Centralize calculations.
-        create_annual_debt()
+        create_budget_visualization()
 
         // Create bars from the array of attributes.
         svg.selectAll(".bar_chart")
-            .data(annual_debt)
+            .data(receipts_less_outlays)
             .enter()
             .append("rect")                                                 // Bar chart.
             .attr("x", function (d) { return d.x; })                        // Spaced based on sales datate.
@@ -233,7 +232,7 @@
             .style("fill", function (d) { return d.color; })  // Set the color of the bar.
 
         // Add data labels from the array of attributes.
-        var data_labels = svg.selectAll(".data_label").data(annual_debt)
+        var data_labels = svg.selectAll(".data_label").data(receipts_less_outlays)
 
         // Add data labels.
         data_labels
@@ -249,7 +248,7 @@
             .style("fill", "white")
 
         // Add president labels from the array of attributes.
-        var president_labels = svg.selectAll(".president_label").data(annual_debt)
+        var president_labels = svg.selectAll(".president_label").data(receipts_less_outlays)
 
         // Add president labels.
         president_labels
@@ -267,43 +266,59 @@
         // Draw a line from the previous d to the current d.
         var lineFunc = d3.line()
             .x(function (d) { return d.text_x; })    // Draw the line segment to the horizontal center of a bar.
-            .y(function (d) { return d.y; })    // Draw the line segment to the top of a bar.
+            .y(function (d) { 
+                if (d.budget > 0) {
+                    return d.y      // Top of the rectangl3.
+                } else {
+                    return 250 + d.height  // Bottom of the rectangle.
+                }
+            })
 
         // Draw a shape that is not predefined in anyother of the commands.
         // Pass the data to the lineFunc and let it draw the line.
         var viz = svg.append("path")
-            .attr("d", lineFunc(annual_debt))
+            .attr("d", lineFunc(receipts_less_outlays))
             .attr("class", "line_chart")        // Used for selection.
             .attr("stroke", "yellow")
             .attr("stroke-width", 2)
             .attr("fill", "none")
 
         // Add scatter plot data points from the array of attributes.
-        var data_points = svg.selectAll(".scatter_plot").data(annual_debt)
+        var data_points = svg.selectAll(".scatter_plot").data(receipts_less_outlays)
 
         // Add data points for the scatter plot.
         data_points.enter()
             .append("circle")
             .attr("cx", function (d) { return d.text_x; })  // Center the circle to the horizontal center of a bar.
-            .attr("cy", function (d) { return d.y; })       // Center the circle to the top of a bar.
+            .attr("cy", function (d) {
+                if (d.budget > 0) {
+                    return d.y      // Top of the rectangl3.
+                } else {
+                    return 250 + d.height  // Bottom of the rectangle.
+                }
+            })
             .attr("r", 5)
             .attr("fill", "yellow")
             .attr("class", "scatter_plot")                  // Used for selection.
 
         // Add bottom axis.
+        console.log(" ")
+        console.log("Executing xAxis.scale(scale_year).")
         xAxis.scale(scale_year)
-        leftPosition = parseInt((annual_debt[0]["width"] / 2).toFixed(0))
+        leftPosition = parseInt((receipts_less_outlays[0]["width"] / 2).toFixed(0))
         svg.append("g")
             .attr("id", "xAxisG")
             .attr("class", "x_data_axis")     // Used for selection.
             .attr("transform", "translate(" + leftPosition + "," + (svgRow.height * bottomMargin) + ")")
             .call(xAxis
-                .ticks(annual_debt.length)
+                .ticks(receipts_less_outlays.length)
                 .tickFormat(d3.format("9999")))
 
         // Add vertical axis.
+        console.log(" ")
+        console.log("Executing yAxis.scale(yAxisScale)")
         yAxis.scale(yAxisScale)
-        top_position = 0
+        top_position = 500 * 0.05
         svg.append("g")
             .attr("id", "yAxisG")
             .attr("class", "y_data_axis")
@@ -489,13 +504,6 @@
         }
 
         // Add the scale label.
-        if (end_year < "1863") {
-            scale_text = "Millions of Dollars"
-        } else if (end_year < "1983") {
-            scale_text = "Billions of Dollars"
-        } else {
-            scale_text = "Trillions of Dollars"
-        }
         svg.append("text")
             .text(scale_text)
             .attr("id", "scale_text")
@@ -515,10 +523,10 @@
         // Create chart attributes based on raw debt data and visualization attributes.
         // This takes more memory.  Simpler code during plotting.  Calculate only once.
         // Centralize calculations.
-        create_annual_debt()
+        create_budget_visualization()
 
         // Update existing bars from the array of attributes.
-        var bars = svg.selectAll("rect").data(annual_debt)
+        var bars = svg.selectAll("rect").data(receipts_less_outlays)
 
         // Determine if the bars are hidden.
         var checkbox_bar_chart = document.getElementById("checkbox_bar_chart")
@@ -554,7 +562,7 @@
         bars.exit().remove()
 
         // Update existing data labels from array of attributes.
-        var data_labels = svg.selectAll(".data_label").data(annual_debt)
+        var data_labels = svg.selectAll(".data_label").data(receipts_less_outlays)
 
         // Determine if the data labels are hidden.
         var checkbox_data_label = document.getElementById("checkbox_data_label")
@@ -604,7 +612,7 @@
         data_labels.exit().remove()
 
         // Update existing president labels from array of attributes.
-        var president_labels = svg.selectAll(".president_label").data(annual_debt)
+        var president_labels = svg.selectAll(".president_label").data(receipts_less_outlays)
 
         // Determine if the president labels are hidden.
         var checkbox_president_label = document.getElementById("checkbox_president_label")
@@ -655,20 +663,26 @@
         // Draw a line from the previous d to the current d.
         var lineFunc = d3.line()
             .x(function (d) { return d.text_x; })    // Draw the line segment to the horizontal center of a bar.
-            .y(function (d) { return d.y; })    // Draw the line segment to the top of a bar.
+            .y(function (d) { 
+                if (d.budget > 0) {
+                    return d.y      // Top of the rectangl3.
+                } else {
+                    return 250 + d.height  // Bottom of the rectangle.
+                }
+            })
 
         // Draw a shape that is not predefined in anyother of the commands.
         // Pass the data to the lineFunc and let it draw the line.
         var viz = svg.select("path")
             .transition()
             .duration(1000)
-            .attr("d", lineFunc(annual_debt))
+            .attr("d", lineFunc(receipts_less_outlays))
             .attr("stroke", "yellow")
             .attr("stroke-width", 2)
             .attr("fill", "none")
 
         // Update existing scatter plot from the array of attributes.
-        var data_points = svg.selectAll(".scatter_plot").data(annual_debt)
+        var data_points = svg.selectAll(".scatter_plot").data(receipts_less_outlays)
 
         // Determine if the data_points are hidden.
         var checkbox_scatter_plot = document.getElementById("checkbox_scatter_plot")
@@ -683,7 +697,13 @@
             .duration(1000)
             .attr("class", class_string)
             .attr("cx", function (d) { return d.text_x; })   // Center the circle to the horizontal center of a bar.
-            .attr("cy", function (d) { return d.y; })   // Center the circle to the top of a bar.
+            .attr("cy", function (d) {
+                if (d.budget > 0) {
+                    return d.y      // Top of the rectangl3.
+                } else {
+                    return 250 + d.height  // Bottom of the rectangle.
+                }
+            })
 
         // Add data points.
         data_points.enter()
@@ -698,15 +718,15 @@
         data_points.exit().remove()
 
         // Limit the number of horizontal ticks.
-        if (annual_debt.length > 20) {
+        if (receipts_less_outlays.length > 20) {
             var number_of_ticks = 20
         } else {
-            number_of_ticks = annual_debt.length
+            number_of_ticks = receipts_less_outlays.length
         }
 
         // Reposition the x axis.
         xAxis.scale(scale_year)
-        leftPosition = parseInt((annual_debt[0]["width"] / 2).toFixed(0))
+        leftPosition = parseInt((receipts_less_outlays[0]["width"] / 2).toFixed(0))
         svg.select("#xAxisG")
             .attr("transform", "translate(" + leftPosition + "," + (svgRow.height * bottomMargin) + ")")
             .call(xAxis
@@ -715,38 +735,30 @@
 
         // Reposition the y axis.
         yAxis.scale(yAxisScale)
-        top_position = 0
+        top_position = 500 * 0.05
         svg.select("#yAxisG")
             .transition()
             .duration(1000)
             .attr("transform", "translate(0," + top_position + ")")
             .call(yAxis)
 
-        // Update the scale text.
-        if (end_year < "1863") {
-            svg.select("#scale_text")
-                .text("Millions of Dollars")
-        } else if (end_year < "1983") {
-            svg.select("#scale_text")
-                .text("Billions of Dollars")
-        } else {
-            svg.select("#scale_text")
-                .text("Trillions of Dollars")
-        }
 
 
+        // Add the scale label.
+        svg.select("#scale_text")
+            .text(scale_text)
 
 
     }
 
     function startUpdate() {
         resize = false;
-        get_historical_debt_outstanding_annual();
+        get_budget();
     }
 
     function startResize() {
         resize = true;
-        get_historical_debt_outstanding_annual();
+        get_budget();
     }
 
     // Using bootstrap, create row and column for the svg.
@@ -764,7 +776,6 @@
         .attr("class", "col-sm-12")
         .attr("id", "svgColumn")
 
-    get_historical_debt_outstanding_annual_years()
     startResize()
 
 

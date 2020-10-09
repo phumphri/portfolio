@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+
+
+<script src="https://d3js.org/d3.v6.min.js" charset="utf-8"></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+{% endblock %}
+
+{% block title %}National Debt{% endblock %}
+
+{% block body %}
+{{ super() }}
+<!-- <script>
+    d3.csv("https://www.cbo.gov/system/files/2019-08/51137-2019-08-potentialgdp.xlsx",
+        function(d) { console.log(d[0]) } 
+    )
+</script> -->
+{% endblock %}
