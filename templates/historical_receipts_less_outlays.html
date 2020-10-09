@@ -699,7 +699,7 @@
             .attr("cx", function (d) { return d.text_x; })   // Center the circle to the horizontal center of a bar.
             .attr("cy", function (d) {
                 if (d.budget > 0) {
-                    return d.y      // Top of the rectangl3.
+                    return d.y      // Top of the rectangle.
                 } else {
                     return 250 + d.height  // Bottom of the rectangle.
                 }
@@ -709,7 +709,13 @@
         data_points.enter()
             .append("circle")
             .attr("cx", function (d) { return d.text_x; })   // Center the circle to the horizontal center of a bar.
-            .attr("cy", function (d) { return d.y; })   // Center the circle to the top of a bar.
+            .attr("cy", function (d) {
+                if (d.budget > 0) {
+                    return d.y      // Top of the rectangle.
+                } else {
+                    return 250 + d.height  // Bottom of the rectangle.
+                }
+            })
             .attr("r", 5)
             .attr("fill", "yellow")
             .attr("class", class_string)                  // Used for selection.

@@ -61,7 +61,7 @@ def mortgage():
 
 # Mortgage Tutorial
 
-
+ 
 @app.route("/mortgage_with_flask_bootstrap")
 def mortgage_boostrap():
     return render_template("mortgage_with_flask_bootstrap.html",
