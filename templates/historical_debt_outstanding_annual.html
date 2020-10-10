@@ -39,6 +39,7 @@
     begin_year = 2009
     end_year = 2020
     years = []
+    scale_text = "placeholder"
 
 
 
@@ -48,45 +49,17 @@
     // var baseline = h
     var padding = 2;        // Add spaces around the bars.
 
-    // Get Historical Debt Outstanding Annual Years.
-    function get_historical_debt_outstanding_annual_years() {
-
-        console.log("get_historical_debt_outstanding_annual_years()")
-
-        var xmlhttp = new XMLHttpRequest()
-        host = "http://localhost"
-        port = ":5000"
-        end_point = "/historical_debt_outstanding_annual_years"
-        url = host + port + end_point
-        url = end_point
-        console.log("url:", url)
 
 
-        // Build the SVG when a valid response is returned.
-        xmlhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                years = JSON.parse(this.responseText);
-            }
-        };
+    // Get Historical Debt Outstanding Annual data.
+    function historical_debt_outstanding_annual_data() {
 
-        // Send the request and wait for the valid response.
-        xmlhttp.open("GET", url, true);
-        xmlhttp.send();
-    }
-
-
-    // Get Historical Debt Outstanding Annual.
-    function get_historical_debt_outstanding_annual() {
-
-        console.log("get_historical_debt_outstanding_annual")
+        console.log("historical_debt_outstanding_annual_data")
 
         var xmlhttp = new XMLHttpRequest()
-        host = "http://localhost"
-        port = ":5000"
-        end_point = "/historical_debt_outstanding_annual"
+        end_point = "/historical_debt_outstanding_annual_data"
         begin_year_parameter = "?begin_year=" + begin_year
         end_year_parameter = "&end_year=" + end_year
-        url = host + port + end_point + begin_year_parameter + end_year_parameter
         url = end_point + begin_year_parameter + end_year_parameter
         console.log("url:", url)
 
@@ -94,26 +67,46 @@
         // Build the SVG when a valid response is returned.
         xmlhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
-                data = JSON.parse(this.responseText);
+
+                // Convert json response text to a response dictionary.
+                response = JSON.parse(this.responseText)
+                console.log(" ")
+                console.log("response dictionary:")
+                console.log(response)
+
+                // Extract years from the response dictionary.
+                years = response["years"]
+
+                // Extract annual data entries from the response dictionary.
+                data = response["data"]
+
+                // Define the dataset.
                 dataset = []
 
-                // Convert the volume strings to type integer.
-                // Conver the date string to type date.
-                for (var i = 0; i < data.length; i++) {
+                // response["scale"]["min_value"] max_value divisior text
+
+                // Loop through the data dictionary in the response dictionary.
+                i = 0
+                for (d in data) {
+                    console.log(" ")
+                    console.log("d: ", d)
                     dataset[i] = {}
-                    dataset[i]["year"] = parseInt(data[i]["reporting_calendar_year"])
-                    dataset[i]["president"] = data[i]["president"]
-                    dataset[i]["color"] = data[i]["color"]
-                    var o = parseInt(data[i]["debt_outstanding_amt"])
-                    if (end_year < "1863") {
-                        o = o / 1000000
-                    } else if (end_year < "1983") {
-                        o = o / 1000000000
-                    } else {
-                        o = o / 1000000000000
-                    }
+                    dataset[i]["year"] = parseInt(d)
+                    dataset[i]["president"] = data[d]["president"]
+                    dataset[i]["color"] = data[d]["color"]
+                    var o = data[d]["value"] / response["scale"]["divisor"]
                     dataset[i]["debt"] = o
+                    i++
                 }
+
+                // Extract the scale_text.
+                scale_text = response["scale"]["text"]
+
+                console.log(" ")
+                console.log("dataset:")
+                console.log(dataset)
+
+                // 
                 if (resize) {
                     createSVG()
                 } else {
@@ -489,13 +482,6 @@
         }
 
         // Add the scale label.
-        if (end_year < "1863") {
-            scale_text = "Millions of Dollars"
-        } else if (end_year < "1983") {
-            scale_text = "Billions of Dollars"
-        } else {
-            scale_text = "Trillions of Dollars"
-        }
         svg.append("text")
             .text(scale_text)
             .attr("id", "scale_text")
@@ -723,16 +709,8 @@
             .call(yAxis)
 
         // Update the scale text.
-        if (end_year < "1863") {
-            svg.select("#scale_text")
-                .text("Millions of Dollars")
-        } else if (end_year < "1983") {
-            svg.select("#scale_text")
-                .text("Billions of Dollars")
-        } else {
-            svg.select("#scale_text")
-                .text("Trillions of Dollars")
-        }
+        svg.select("#scale_text")
+            .text(scale_text)
 
 
 
@@ -741,12 +719,12 @@
 
     function startUpdate() {
         resize = false;
-        get_historical_debt_outstanding_annual();
+        historical_debt_outstanding_annual_data();
     }
 
     function startResize() {
         resize = true;
-        get_historical_debt_outstanding_annual();
+        historical_debt_outstanding_annual_data();
     }
 
     // Using bootstrap, create row and column for the svg.
@@ -764,7 +742,6 @@
         .attr("class", "col-sm-12")
         .attr("id", "svgColumn")
 
-    get_historical_debt_outstanding_annual_years()
     startResize()
 
 

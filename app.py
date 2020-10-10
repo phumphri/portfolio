@@ -302,8 +302,8 @@ def debt():
 # Get Historical Debt Outstanding Annual Data.
 
 
-@app.route("/historical_debt_outstanding_annual", methods=['GET'])
-def get_historical_debt_outstanding_annual():
+@app.route("/historical_debt_outstanding_annual_deprecated", methods=['GET'])
+def get_historical_debt_outstanding_annual_deprecated():
     begin_year = request.args.get('begin_year')
     end_year = request.args.get('end_year')
 
@@ -473,8 +473,8 @@ def get_historical_debt_outstanding_annual():
 # Get Historical Debt Outstanding Annual Years.
 
 
-@app.route("/historical_debt_outstanding_annual_years", methods=['GET'])
-def get_historical_debt_outstanding_annual_years():
+@app.route("/historical_debt_outstanding_annual_years_deprecated", methods=['GET'])
+def get_historical_debt_outstanding_annual_years_deprecated():
 
     # Declare global table.
     global historical_debt_outstanding_annual
@@ -519,6 +519,7 @@ def build_historical_debt_outstanding_annual():
     sort = "&sort=reporting_calendar_year"
     page = "&page[size]=300"
     url = base_url + endpoint + fields + sort + page
+    print("url: " + url)
     response = requests.get(url)
     sc = response.status_code
     if sc == 200:
@@ -715,6 +716,152 @@ def get_receipts_less_outlays_data_from_website():
         response=response, status=200, mimetype='application/json')
 
     return response
+ 
+@app.route("/historical_debt_outstanding_annual_data", methods=['GET'])
+def historical_debt_outstanding_annual_data():
+    begin_year = request.args.get('begin_year')
+    end_year = request.args.get('end_year')
+
+    # Define an empty response.
+    response = {}
+    response["years"] = []
+    response["data"] = {}
+    response["scale"] = {}
+    response["scale"]["min_value"] = 999999999999
+    response["scale"]["max_value"] = -999999999999
+    response["scale"]["divisor"] = 1
+    response["scale"]["text"] = "placeholder"
+
+ 
+
+    print("build_historical_debt_outstanding_annual was called.")
+    base_url = "https://www.transparency.treasury.gov"
+    endpoint = "/services/api/fiscal_service/v1/accounting/od/debt_outstanding"
+    fields = "?fields=reporting_calendar_year,debt_outstanding_amt"
+    sort = "&sort=reporting_calendar_year"
+    page = "&page[size]=300"
+    url = base_url + endpoint + fields + sort + page
+    print("new url: " + url)
+    web_response = requests.get(url)
+    sc = web_response.status_code
+    if sc != 200:
+        message_from_the_application = "Unsuccessful " + url + ".</br>" + \
+            "response.status_code: " + response.status_code + "</br>" + \
+            "response.reason: " + response.reason + "</br>"
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    data = web_response.json()["data"]
+    print(" ")
+    print("type(data): " + str(type(data)))
+    # print("data:")
+    # print(data)
+
+    # Process the dictionaries in the data array.
+    for d in data:
+
+        # Extract the year from the entry in the data array.
+        year = int(d["reporting_calendar_year"])
+
+        # Add the year to the array of years.
+        response["years"].append(year)
+
+        # Filter on year parameters.
+        if year < int(begin_year) or year > int(end_year):
+            continue
+
+        # Convert debt_outstanding_amt string to float.
+        debt_outstanding_amt = float(d["debt_outstanding_amt"])
+
+        # Update the minimum value.
+        if debt_outstanding_amt < response["scale"]["min_value"]:
+            response["scale"]["min_value"] = debt_outstanding_amt
+
+        # Update the maximum value.
+        if debt_outstanding_amt > response["scale"]["max_value"]:
+            response["scale"]["max_value"] = debt_outstanding_amt
+
+        # Add a year to the response.
+        response["data"][year] = {}
+
+        # Get a shorthand reference to the response-data-year.
+        d = response["data"][year]
+
+        # Add receipts less outlays to the response.
+        d["value"] = debt_outstanding_amt
+
+        # Add president and color to the response.
+        if year >= 2021:
+            d["president"] = "placeholder"
+            d["color"] = "grey"
+        elif year >= 2017:
+            d["president"] = "Trump"
+            d["color"] = "red"
+        elif year >= 2009:
+            d["president"] = "Obama"
+            d["color"] = "blue"
+        elif year >= 2001:
+            d["president"] = "Bush"
+            d["color"] = "red"
+        elif year >= 1993:
+            d["president"] = "Clinton"
+            d["color"] = "blue"
+        elif year >= 1989:
+            d["president"] = "Bush"
+            d["color"] = "red"
+        elif year >= 1981:
+            d["president"] = "Reagan"
+            d["color"] = "red"
+        elif year >= 1977:
+            d["president"] = "Carter"
+            d["color"] = "blue"
+        elif year >= 1974:
+            d["president"] = "Ford"
+            d["color"] = "red"
+        elif year >= 1969:
+            d["president"] = "Nixon"
+            d["color"] = "red"
+        elif year >= 1963:
+            d["president"] = "Johnson"
+            d["color"] = "blue"
+        elif year >= 1961:
+            d["president"] = "Kennedy"
+            d["color"] = "blue"
+        else:
+            d["president"] = "Placeholder"
+            d["color"] = "grey"
+                                   
+    # Calculate scale.
+    x = abs(response["scale"]["max_value"])
+    y = abs(response["scale"]["min_value"])
+    if x > y:
+        z = x
+    else:
+        z = y
+    if z > 999999999999:
+        response["scale"]["divisor"] = 1000000000000
+        response["scale"]["text"] = "Trillions of Dollars"
+    elif z > 999999999:
+        response["scale"]["divisor"] = 1000000000
+        response["scale"]["text"] = "Billions of Dollars"
+    elif z > 999999:
+        response["scale"]["divisor"] = 1000000
+        response["scale"]["text"] = "Millions of Dollars"
+    elif z > 999:
+        response["scale"]["divisor"] = 1000
+        response["scale"]["text"] = "Thousands of Dollars"
+    else:
+        response["scale"]["divisor"] = 1
+        response["scale"]["text"] = "Dollars"
+
+    # Convert python dictionary to a json format.
+    response = json.dumps(response)
+
+    # Add status and mime type to the response.
+    response = app.response_class(
+        response=response, status=200, mimetype='application/json')
+
+    return response
 
 
 @app.errorhandler(404)
@@ -739,13 +886,13 @@ def internal_server_error(e):
                            message_from_the_application=e,
                            current_time=datetime.datetime.utcnow()), 500
 
-
+  
 @app.route("/bummer")
 def simulate_internal_server_error():
     message_from_the_application = 'Relax.  This was only a test.'
     raise InternalServerError(message_from_the_application)
 
-
+ 
 @app.errorhandler(501)
 def not_implemented(e):
     return render_template('501.html',
@@ -757,7 +904,7 @@ def not_implemented(e):
 def raise_not_implemented():
     raise NotImplemented()
 
-
+    
 # Determine if running on home workstation, laptop, or from a deployment server.
 if __name__ == "__main__":
 
