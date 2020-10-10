@@ -54,15 +54,11 @@
     // Get Historical Debt Outstanding Annual data.
     function historical_debt_outstanding_annual_data() {
 
-        console.log("historical_debt_outstanding_annual_data")
-
         var xmlhttp = new XMLHttpRequest()
         end_point = "/historical_debt_outstanding_annual_data"
         begin_year_parameter = "?begin_year=" + begin_year
         end_year_parameter = "&end_year=" + end_year
         url = end_point + begin_year_parameter + end_year_parameter
-        console.log("url:", url)
-
 
         // Build the SVG when a valid response is returned.
         xmlhttp.onreadystatechange = function () {
@@ -70,9 +66,6 @@
 
                 // Convert json response text to a response dictionary.
                 response = JSON.parse(this.responseText)
-                console.log(" ")
-                console.log("response dictionary:")
-                console.log(response)
 
                 // Extract years from the response dictionary.
                 years = response["years"]
@@ -88,8 +81,6 @@
                 // Loop through the data dictionary in the response dictionary.
                 i = 0
                 for (d in data) {
-                    console.log(" ")
-                    console.log("d: ", d)
                     dataset[i] = {}
                     dataset[i]["year"] = parseInt(d)
                     dataset[i]["president"] = data[d]["president"]
@@ -101,10 +92,6 @@
 
                 // Extract the scale_text.
                 scale_text = response["scale"]["text"]
-
-                console.log(" ")
-                console.log("dataset:")
-                console.log(dataset)
 
                 // 
                 if (resize) {

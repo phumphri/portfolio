@@ -53,11 +53,8 @@
     // Get Budget Data.
     function get_budget() {
 
-        console.log("get_budget")
-
         var xmlhttp = new XMLHttpRequest()
         url = "/receipts_less_outlays_data?begin_year=" + begin_year + "&end_year=" + end_year
-        console.log("url:", url)
 
         // Build the SVG when a valid response is returned.
         xmlhttp.onreadystatechange = function () {
@@ -66,25 +63,19 @@
                 // Reset the dataset
                 dataset = []
 
+                // Create response dictionary from json response.
                 response = JSON.parse(this.responseText);
-                console.log(" ")
-                console.log("response:")
-                console.log(response)
 
+                // Extract array of years from response dictionary.
                 years = response["years"]
-                console.log(" ")
-                console.log("years:")
-                console.log(years)
 
+                // Extract the data dictionary from the response dictionary.
                 data = response["data"]
-                console.log(" ")
-                console.log("data:")
-                console.log(data)
 
+                // Extract the scale text from the response dictionary.
                 scale_text = response["scale"]["text"]
 
-                // Convert the volume strings to type integer.
-                // Conver the date string to type date.
+                // Move data from response dictionary to the dataset.
                 i = 0
                 for (year in data) {
                     dataset[i] = {}
@@ -96,10 +87,8 @@
                     dataset[i]["budget"] = o
                     i++
                 }
-                console.log(" ")
-                console.log("dataset:")
-                console.log(dataset)
 
+                // If the screen has been resized, rebuild the svg.
                 if (resize) {
                     createSVG()
                 } else {
@@ -115,29 +104,18 @@
 
     function create_budget_visualization() {
 
-        console.log(" ")
-        console.log("Enter create_budget_visualization().")
-        console.log("dataset.length:", dataset.length)
-        console.log("dataset:")
-        console.log(dataset)
-
         // Initialize monthly sales.
         receipts_less_outlays = []
 
         // Calculate the vertical scale based on sales volume and row height.
         var maxBudget = d3.max(dataset, function (d) { return d["budget"] })
         var minBudget = d3.min(dataset, function (d) { return d["budget"] })
-        console.log(" ")
-        console.log("minBudget:", minBudget, 'maxBudget:', maxBudget)
         scaleBudget = d3.scaleLinear()
             .domain([minBudget, 0])
             .rangeRound([(250 * bottomMargin), 0])
         yAxisScale = d3.scaleLinear()
             .domain([minBudget, (minBudget * -1)])
             .rangeRound([(500 * bottomMargin * bottomMargin), 0])
-        console.log(" ")
-        console.log("yAxisScale(minBudget):", yAxisScale(minBudget))
-        console.log("yAxisScale(maxBudget):", yAxisScale(maxBudget))
 
         // Calculate the horizontal scale based on year and row width.
         // Last date would be positioned at the edge of the svg.
@@ -175,8 +153,6 @@
             d.year_x = parseInt(scale_year(dataset[i]["year"]).toFixed(0));
             receipts_less_outlays.push(d)
         }
-        console.log("receipts_less_outlays:")
-        console.log(receipts_less_outlays)
     }
 
     function createSVG() {
@@ -302,8 +278,6 @@
             .attr("class", "scatter_plot")                  // Used for selection.
 
         // Add bottom axis.
-        console.log(" ")
-        console.log("Executing xAxis.scale(scale_year).")
         xAxis.scale(scale_year)
         leftPosition = parseInt((receipts_less_outlays[0]["width"] / 2).toFixed(0))
         svg.append("g")
@@ -315,8 +289,6 @@
                 .tickFormat(d3.format("9999")))
 
         // Add vertical axis.
-        console.log(" ")
-        console.log("Executing yAxis.scale(yAxisScale)")
         yAxis.scale(yAxisScale)
         top_position = 500 * 0.05
         svg.append("g")
