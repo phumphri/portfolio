@@ -470,10 +470,10 @@ def get_receipts_less_outlays_data_from_website():
  
     # If budget_data already exists, bypass the query.
     if budget_data == None:
-
+ 
         # Initialize budget data.
         budget_data = {}
-
+ 
         # Load budget data with receipts.
         url = "https://www.whitehouse.gov/wp-content/uploads/2020/02/receipts_fy21.xlsx"
         xlsx = requests.get(url)
