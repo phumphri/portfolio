@@ -28,14 +28,14 @@ if False:
     os.system("python -m pip install --upgrade datetime")
     os.system("python -m pip install --upgrade werkzeug")
     os.system("python -m pip install --upgrade werkzeug.exceptions")
-
+ 
 # Assigning the Flask framework.
 app = Flask(__name__)
 CORS(app)
  
 # Definining global variables.
 historical_debt_outstanding_annual = None
-historical_debt_outstanding_annual_years = None
+historical_debt_outstanding_annual_years = None   
 hostname = "localhost"
 port = "5000"
 budget_data = None
@@ -48,7 +48,7 @@ def home():
                            current_time=datetime.datetime.utcnow())
 
 # Mortgage Tutorial
-
+                               
 
 @app.route("/examples_01.01.loancalc.html")
 def mortgage():
@@ -78,8 +78,8 @@ def mortgage_d3():
     #     current_time=datetime.datetime.utcnow())
 
 # Mortgage
-
-
+               
+            
 @app.route("/mortgage")
 def mortgage_function():
     # Instantiate Mortgage module.
@@ -108,9 +108,9 @@ def d3_tutorial():
                            current_time=datetime.datetime.utcnow())
 
 # Sandbox for D3
-
-
-@app.route("/sandbox")
+ 
+  
+@app.route("/sandbox") 
 def sandbox():
     return render_template("sandbox.html",
                            project_name="sandbox",
@@ -221,7 +221,7 @@ def sandbox_sales(year):
         if conn is not None:
             conn.close
 
-
+   
 @app.route("/udemy_years")
 def udemy_years():
 
@@ -435,7 +435,7 @@ def historical_debt_outstanding_annual_data():
 
     return response
 
-
+    
 
 
 @app.route("/receipts_less_outlays")
