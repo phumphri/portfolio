@@ -48,7 +48,7 @@ def home():
                            current_time=datetime.datetime.utcnow())
 
 # Mortgage Tutorial
-                                
+                                                                         
 
 @app.route("/examples_01.01.loancalc.html")
 def mortgage():
@@ -64,7 +64,7 @@ def mortgage_boostrap():
                            current_time=datetime.datetime.utcnow())
 
 # Mortgage Tutorial
-
+       
 
 @app.route("/mortgage_with_d3")
 def mortgage_d3():
@@ -78,7 +78,7 @@ def mortgage_d3():
     #     current_time=datetime.datetime.utcnow())
 
 # Mortgage
-                                             
+                                                        
             
 @app.route("/mortgage")
 def mortgage_function():
@@ -436,7 +436,7 @@ def historical_debt_outstanding_annual_data():
     return response
 
     
-
+ 
 
 @app.route("/receipts_less_outlays")
 def render_receipts_less_outlays():
