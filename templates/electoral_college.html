@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+
+<!-- Data Driven Documents -->
+<script src="https://d3js.org/d3.v6.min.js" charset="utf-8"></script>
+
+<!-- Leaflet.js -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+{% endblock %}
+
+{% block title %}sandbox{% endblock %}
+
+{% block body %}
+{{ super() }}
+
+<script src="../static/js/us-states.js"></script>
+
+<script>
+
+    svg = null;
+
+    function create_map() {
+
+        // Get the window dimensions so the map can be sized.
+        var w = window.innerWidth.toString()
+        var h = (window.innerHeight * 0.70).toString()
+
+        // Remove the existing map row.
+        var map_row = map_container.select("#map_row")
+        if (map_row != null) {
+            map_row.remove()
+        }
+
+        // Add the new map row with the new dimensions.
+        var map_row = map_container.append("div")
+            .attr("class", "row")
+            .attr("id", "map_row")
+            .style("width", w + "px")
+            .style("height", h + "px")
+
+        // Specify map parameters.
+        var mapboxAccessToken = 'pk.eyJ1IjoicGh1bXBocmkiLCJhIjoiY2tnNGJ1NHBsMGRoNDMxcXNhemJieGdxeSJ9.FKo4lgDkbphPAFdxMK3Kog'
+        var map = L.map('map_row').setView([37.8, -96], 4);
+
+        // Load the tiles into the map.
+        // L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
+        //     id: 'mapbox/light-v9',
+        //     // attribution: ...,
+        //     tileSize: 512,
+        //     zoomOffset: -1
+        // }).addTo(map);
+
+        // Load the states to the map.
+        var geo_json_layer = L.geoJson(statesData).addTo(map);
+
+        // Add IDs to each of the svg paths.
+        geo_json_layer.eachLayer(function (layer) {
+            layer._path.id = layer.feature.properties.name
+            // console.log(" ")
+            // console.log(layer.feature.properties.name)
+            // console.log(layer.getCenter())
+        });
+
+        svg = map_container.select("svg")
+            .style("background-color", "black")
+
+        svg.selectAll("path")
+            .attr("fill-opacity", "0.0")
+            .attr("stroke", "darkgrey")
+
+        // d3.polygonCentroid(polygon)
+
+        // L.geoJson(statesData, {
+        //     onEachFeature: function (feature, layer) {
+        //         var label = L.marker(layer.getBounds().getCenter(), {
+        //             icon: L.divIcon({
+        //                 className: 'label',
+        //                 html: feature.properties.votes,
+        //                 iconSize: [100, 40]
+        //             })
+        //         }).addTo(map);
+        //     }
+        // });
+
+    }
+
+    // Recreate the map when the window is resized.
+    var body = d3.select("body")
+        .attr("onresize", "create_map()")
+
+    // The map row is added and removed in the map container.
+    var map_container = body.append("div")
+        .attr("class", "container-fluid")
+        .attr("id", "map_container")
+
+    create_map()
+
+    // Add the control row.  Resizing handled by D3.
+    var control_row = body.append("div")
+        .attr("class", "row")
+        .attr("id", "control_row")
+
+    // Add the control column to the control row.
+    var control_column = control_row.append("div")
+        .attr("class", "col-sm-8")
+        .attr("id", "control_column")
+
+    // Add the control table to the control column.
+    var control_table = control_column.append("table")
+        .attr("class", "table")
+        .attr("id", "control_table")
+
+    // Add heading to the control table.
+    var control_thead = control_table.append("thead")
+    var control_tr = control_thead.append("tr")
+    control_tr.append("th").text("State")
+    control_tr.append("th").text("Status")
+    control_tr.append("th").text("votes")
+
+    // Add the results column to the control row.
+    var results_column = control_row.append("div")
+        .attr("class", "col-sm-4")
+        .attr("id", "results_column")
+
+    // Add the results table to the results column.
+    var results_table = results_column.append("table")
+        .attr("class", "table")
+        .attr("id", "results_table")
+
+    // Add headings to the results table.
+    var results_thead = results_table.append("thead")
+    var results_thead_tr = results_thead.append("tr")
+    var biden_th = results_thead_tr.append("th")
+        .style('color', 'lightblue')
+        .text("Joe Biden")
+    var trump_th = results_thead_tr.append("th")
+        .style('color', 'red')
+        .text("Trump")
+    var total_th = results_thead_tr.append("th")
+        .text("Total")
+
+    // Add results to the results table.
+    var results_tbody = results_table.append("tbody")
+    var results_tbody_tr = results_tbody.append("tr")
+    var biden_td = results_tbody_tr.append("td")
+        .attr("id", "biden_td")
+        .text("0")
+    var trup_td = results_tbody_tr.append("td")
+        .attr("id", "trump_td")
+        .text("0")
+    var total_td = results_tbody_tr.append("td")
+        .attr("id", "total_td")
+        .text("0")
+
+    var control_button_ids = []
+    var votes_by_state = {}
+    var control_values = localStorage.getItem("control_values")
+
+    // Populate the control table.
+    var control_tbody = control_table.append("tbody")
+    var features = statesData["features"]
+    for (var feature in features) {
+        var state_name = features[feature]["properties"]["name"]
+        var state_votes = features[feature]["properties"]["votes"]
+        votes_by_state[state_name] = state_votes
+
+        // The buttons will be queried to determine results.
+        control_button_ids.push(state_name + "_clear_button")
+        control_button_ids.push(state_name + "_biden_button")
+        control_button_ids.push(state_name + "_trump_button")
+
+        var control_tr = control_tbody.append("tr")
+
+        // Populate the State column.
+        control_tr.append("td").text(state_name)
+
+        // Populate the Status column.
+        var radio_buttons_td = control_tr.append("td")
+        var radio_buttons_g = radio_buttons_td.append("g")
+
+        // Clear button.
+        radio_buttons_g.append("label")
+            .attr("class", "radio-inline")
+            .attr("for", state_name + "_clear_button")
+            .text("Clear")
+        var clear_button = radio_buttons_g.append("input")
+            .attr("id", state_name + "_clear_button")
+            .attr("name", state_name)
+            .attr("type", "radio")
+
+        // Joe Biden button.
+        radio_buttons_g.append("label")
+            .attr("class", "radio-inline")
+            .attr("for", state_name + "_biden_button")
+            .text("Biden")
+        var biden_button = radio_buttons_g.append("input")
+            .attr("id", state_name + "_biden_button")
+            .attr("name", state_name)
+            .attr("type", "radio")
+
+        // Trump button.
+        radio_buttons_g.append("label")
+            .attr("class", "radio-inline")
+            .attr("for", state_name + "_trump_button")
+            .text("Trump")
+        var trump_button = radio_buttons_g.append("input")
+            .attr("id", state_name + "_trump_button")
+            .attr("name", state_name)
+            .attr("type", "radio")
+
+
+        // Populate the Votes column.
+        control_tr.append("td").text(state_votes);
+
+        // Add aggregation function.
+        control_tbody.selectAll("input")
+            .on("click", function (d) {
+                biden_total = 0
+                trump_total = 0
+                for (var i in control_button_ids) {
+                    var id = control_button_ids[i]
+
+                    console.log(" ")
+                    console.log("control button id:", id)
+
+                    if (document.getElementById(id).checked) {
+
+
+                        // The first underscore separates the state name and the button name.
+                        var first_underscore = id.indexOf("_")
+
+                        // Get the state name from the control button ID.
+                        var state_name = id.substring(0, first_underscore)
+
+                        // The next underscore separate the candidate name from the fubbon name.
+                        var next_underscore = id.indexOf("_", (first_underscore + 1))
+
+                        // Get the candidate name from the control button ID.
+                        var candidate_name = id.substring((first_underscore + 1), next_underscore)
+
+                        if (false) {
+                            console.log("id:", id,
+                                "First Underscore:", first_underscore,
+                                "Next Underscore:", next_underscore,
+                                "State:", state_name,
+                                "Candidate:", candidate_name,
+                                "Votes:", votes_by_state[this_state_name])
+                        }
+
+                        // Increment candidate totals and update state color.
+                        var boffo = document.getElementById(state_name)
+                        boffo.setAttribute("fill-opacity", "1.0")
+                        console.log("candidate name:", candidate_name)
+                        if (candidate_name == "biden") {
+                            biden_total += votes_by_state[state_name]
+                            boffo.setAttribute("fill", "blue")
+                            console.log(state_name, "blue")
+                        } else if (candidate_name == "trump") {
+                            trump_total += votes_by_state[state_name]
+                            boffo.setAttribute("fill", "red")
+                            console.log(state_name, "red")
+                        } else {
+                            boffo.setAttribute("fill-opacity", "0.0")
+                            console.log(" ")
+                            console.log(state_name, "clear")
+                            console.log(" ")
+                        }
+
+                        // Update state color.
+
+                        // Update local storage.
+                        control_values[state_name] = candidate_name
+                        control_values_string = JSON.stringify(control_values)
+                        localStorage.setItem("control_values", control_values_string)
+                    }
+                }
+                // Display candidate totals in the results table.
+                document.getElementById("results_table").rows[1].cells[0].innerHTML = biden_total
+                document.getElementById("results_table").rows[1].cells[1].innerHTML = trump_total
+                document.getElementById("results_table").rows[1].cells[2].innerHTML = biden_total + trump_total
+            });
+    }
+
+    // Get the control values from the previous session.
+    var control_values_string = localStorage.getItem("control_values")
+    console.log(" ")
+    if (control_values_string == null) {
+        console.log("Control values were not found.")
+        var control_values = {}
+        control_values["Alabama"] = "trump"
+        control_values["Alaska"] = "trump"
+        control_values["Arizona"] = "biden"
+        control_values["Arkansas"] = "trump"
+        control_values["California"] = "biden"
+        control_values["Colorado"] = "biden"
+        control_values["Connecticut"] = "biden"
+        control_values["Delaware"] = "biden"
+        control_values["Florida"] = "trump"
+        control_values["Georgia"] = "trump"
+        control_values["Hawaii"] = "biden"
+        control_values["Idaho"] = "trump"
+        control_values["Illinois"] = "biden"
+        control_values["Indiana"] = "trump"
+        control_values["Iowa"] = "trump"
+        control_values["Kansas"] = "trump"
+        control_values["Kentucky"] = "trump"
+        control_values["Louisiana"] = "trump"
+        control_values["Maine"] = "biden"
+        control_values["Maryland"] = "biden"
+        control_values["Massachusetts"] = "biden"
+        control_values["Michigan"] = "biden"
+        control_values["Minnesota"] = "biden"
+        control_values["Mississippi"] = "trump"
+        control_values["Missouri"] = "trump"
+        control_values["Montana"] = "trump"
+        control_values["Nebraska"] = "trump"
+        control_values["Nevada"] = "biden"
+        control_values["New Hampshire"] = "biden"
+        control_values["New Jersey"] = "biden"
+        control_values["New Mexico"] = "biden"
+        control_values["New York"] = "biden"
+        control_values["North Carolina"] = "trump"
+        control_values["North Dakota"] = "trump"
+        control_values["Ohio"] = "trump"
+        control_values["Oklahoma"] = "trump"
+        control_values["Oregon"] = "biden"
+        control_values["Pennsylvania"] = "biden"
+        control_values["Rhode Island"] = "biden"
+        control_values["South Carolina"] = "trump"
+        control_values["South Dakota"] = "trump"
+        control_values["Tennessee"] = "trump"
+        control_values["Texas"] = "trump"
+        control_values["Utah"] = "trump"
+        control_values["Vermont"] = "biden"
+        control_values["Virginia"] = "biden"
+        control_values["Washington"] = "biden"
+        control_values["West Virginia"] = "trump"
+        control_values["Wisconsin"] = "biden"
+        control_values["Wyoming"] = "trump"
+        control_values["District of Columbia"] = "biden"
+        control_values_string = JSON.stringify(control_values)
+        localStorage.setItem("control_values", control_values_string)
+    } else {
+        console.log("Control values were found.")
+    }
+    control_values = JSON.parse(control_values_string)
+
+    // Update button selections from local storage.
+    var biden_total = 0
+    var trump_total = 0
+    for (state_name in control_values) {
+
+        // Click on the corresponding button.
+        var candidate_name = control_values[state_name]
+        var button_id = state_name + "_" + candidate_name + "_button"
+        document.getElementById(button_id).checked = true
+
+        // Update candidate totals.
+        var boffo = document.getElementById(state_name)
+        boffo.setAttribute("fill-opacity", "1.0")
+
+        if (candidate_name == "biden") {
+            biden_total += votes_by_state[state_name]
+            boffo.setAttribute("fill", "blue")
+        } else if (candidate_name == "trump") {
+            trump_total += votes_by_state[state_name]
+            boffo.setAttribute("fill", "red")
+        } else {
+            boffo.setAttribute("fill-opacity", "0.0")
+        }
+
+    }
+
+    // Update the results table.
+    document.getElementById("results_table").rows[1].cells[0].innerHTML = biden_total
+    document.getElementById("results_table").rows[1].cells[1].innerHTML = trump_total
+    document.getElementById("results_table").rows[1].cells[2].innerHTML = biden_total + trump_total
+
+
+
+
+
+
+    // Add results 
+
+    // var end_year_tbody = end_year_table.append("tbody")
+    //         end_year_tbody.selectAll("tr")
+    //             .data(years)
+    //             .enter()
+    //             .append("tr")
+    //             .append("td")
+    //             .append("input")
+    //             .attr("type", "radio")
+    //             .attr("checked", null)
+    //             .attr("name", "end_year")
+    //             .attr("id", function (d, i) { return "end_year_" + d })
+    //         end_year_tbody.selectAll("td")
+    //             .data(years)
+    //             .append("label")
+    //             .attr("for", function (d) { return "end_year_" + d })
+    //             .html(function (d) { return d })
+    //         end_year_tbody.selectAll("input")
+    //             .data(years)
+    //             .on('click', function (d) {
+    //                 if (this.checked) {
+    //                     end_year = d.target.labels[0].innerText
+    //                     startUpdate()
+    //                 }
+    //             })
+
+
+
+</script>
+{% endblock %}

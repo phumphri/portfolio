@@ -48,7 +48,7 @@ def home():
                            current_time=datetime.datetime.utcnow())
 
 # Mortgage Tutorial
-                               
+                                
 
 @app.route("/examples_01.01.loancalc.html")
 def mortgage():
@@ -78,7 +78,7 @@ def mortgage_d3():
     #     current_time=datetime.datetime.utcnow())
 
 # Mortgage
-               
+                                             
             
 @app.route("/mortgage")
 def mortgage_function():
@@ -109,11 +109,11 @@ def d3_tutorial():
 
 # Sandbox for D3
  
-  
-@app.route("/sandbox") 
+                                                                                       
+@app.route("/electoral_college") 
 def sandbox():
-    return render_template("sandbox.html",
-                           project_name="sandbox",
+    return render_template("electoral_college.html",
+                           project_name="Electoral College",
                            current_time=datetime.datetime.utcnow())
 
 
