@@ -48,7 +48,7 @@ def home():
                            current_time=datetime.datetime.utcnow())
 
 # Mortgage Tutorial
-                                                                         
+                                                                                    
 
 @app.route("/examples_01.01.loancalc.html")
 def mortgage():

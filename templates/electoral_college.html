@@ -30,7 +30,6 @@
     biden_total = 0
     trump_total = 0
 
-
     function create_map() {
 
         // Get the window dimensions so the map can be sized.
@@ -125,6 +124,31 @@
         .attr("id", "total_td")
         .text("0")
 
+    // Add the control heading row.  Resizing handled by D3.
+    var control_heading_row = body.append("div")
+        .attr("class", "row")
+        .attr("id", "control_heading_row")
+
+    // Add the control heading column to the control row.
+    var control_heading_column = control_heading_row.append("div")
+        .attr("class", "col-sm-6")
+        .attr("id", "control_heading_column")
+
+    control_heading_row.append("div")
+        .attr("class", "col-sm-6")
+
+    // Add the control heading table to the control heading column.
+    var control_heading_table = control_heading_column.append("table")
+        .attr("class", "table")
+        .attr("id", "control_heading_table")
+
+    // Add heading to the control table.
+    var control_thead = control_heading_table.append("thead")
+    var control_tr = control_thead.append("tr")
+    control_tr.append("th").text("State")
+    control_tr.append("th").style("text-align", "center").text("Status")
+    control_tr.append("th").style("text-align", "right").text("Votes")
+
     // Add the control row.  Resizing handled by D3.
     var control_row = body.append("div")
         .attr("class", "row")
@@ -143,13 +167,6 @@
     var control_table = control_column.append("table")
         .attr("class", "table")
         .attr("id", "control_table")
-
-    // Add heading to the control table.
-    var control_thead = control_table.append("thead")
-    var control_tr = control_thead.append("tr")
-    control_tr.append("th").text("State")
-    control_tr.append("th").text("Status")
-    control_tr.append("th").text("votes")
 
     // Containers for holding values during the initial load.
     var control_button_ids = []
@@ -208,7 +225,6 @@
             .attr("id", state_name + "_trump_button")
             .attr("name", state_name)
             .attr("type", "radio")
-
 
         // Populate the Votes column.
         control_tr.append("td").text(state_votes);
@@ -359,14 +375,12 @@
             } else {
                 boffo.setAttribute("fill-opacity", "0.0")
             }
-
         }
 
         // Update the results table.
         document.getElementById("results_table").rows[1].cells[0].innerHTML = biden_total
         document.getElementById("results_table").rows[1].cells[1].innerHTML = trump_total
         document.getElementById("results_table").rows[1].cells[2].innerHTML = biden_total + trump_total
-
     }
 </script>
 {% endblock %}
