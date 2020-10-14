@@ -48,7 +48,7 @@ def home():
                            current_time=datetime.datetime.utcnow())
 
 # Mortgage Tutorial
-                                                                                    
+                                                                                   
 
 @app.route("/examples_01.01.loancalc.html")
 def mortgage():
@@ -115,7 +115,7 @@ def sandbox():
     return render_template("electoral_college.html",
                            project_name="Electoral College",
                            current_time=datetime.datetime.utcnow())
-
+ 
 
 @app.route("/sandbox_sales/<year>")
 def sandbox_sales(year):
@@ -221,7 +221,7 @@ def sandbox_sales(year):
         if conn is not None:
             conn.close
 
-   
+    
 @app.route("/udemy_years")
 def udemy_years():
 
@@ -284,12 +284,10 @@ def udemy_years():
             conn.close
 
 # Historical Debt Outstanding Annual View Function.
- 
-
 @app.route("/historical_debt_outstanding_annual")
 def historical_debt_outstanding_annual():
     return render_template("historical_debt_outstanding_annual.html",
-                           project_name="Historical Debt Outstanding Annual",
+                           project_name="Historical Debt Outstanding Annual(Loading Data)",
                            current_time=datetime.datetime.utcnow(),
                            hostname=hostname,
                            port=port)
@@ -435,14 +433,14 @@ def historical_debt_outstanding_annual_data():
 
     return response
 
-    
- 
+      
+      
 
 @app.route("/receipts_less_outlays")
 def render_receipts_less_outlays():
 
     return render_template("historical_receipts_less_outlays.html",
-                           project_name="Historical Receipts less Outlays",
+                           project_name="Historical Receipts less Outlays (Loading Data)",
                            current_time=datetime.datetime.utcnow())
 
 #   outlays: https://www.whitehouse.gov/wp-content/uploads/2020/02/outlays_fy21.xlsx
@@ -466,7 +464,7 @@ def get_receipts_less_outlays_data_from_website():
     response["scale"]["text"] = "placeholder"
 
     # Define the budget data to be available between calls.
-    global budget_data
+    global budget_data 
  
     # If budget_data already exists, bypass the query.
     if budget_data == None:

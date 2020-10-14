@@ -109,6 +109,8 @@
 
     function create_annual_debt() {
 
+        d3.select("h1").text("Historical Debt Outstanding Annual")
+
         // Initialize monthly sales.
         annual_debt = []
 
@@ -347,7 +349,6 @@
                 "Select End Year.",
                 "Wait for chart to render.",
                 "Select Visualization.",
-                "If no years appear, refresh the page."
             ]
             var ul = instruction_column.append("ul")
             ul.selectAll("li")

@@ -54,7 +54,8 @@
         var map = L.map('map_row').setView([37.8, -96], 4);
 
         // Load the states to the map.
-        var geo_json_layer = L.geoJson(statesData).addTo(map);
+        var geo_json_layer = L.geoJson(statesData, {attribution: "Map: Mike Bostock, Data:  archive.gov"})
+            .addTo(map);
 
         // Add IDs to each of the svg paths.
         geo_json_layer.eachLayer(function (layer) {
