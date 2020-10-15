@@ -110,6 +110,7 @@
         .style('color', 'red')
         .text("Trump")
     var total_th = results_thead_tr.append("th")
+        .style("text-align", "right")
         .text("Total")
 
     // Add results to the results table.
@@ -123,6 +124,7 @@
         .text("0")
     var total_td = results_tbody_tr.append("td")
         .attr("id", "total_td")
+        .style("text-align", "right")
         .text("0")
 
     // Add the control heading row.  Resizing handled by D3.
@@ -228,7 +230,7 @@
             .attr("type", "radio")
 
         // Populate the Votes column.
-        control_tr.append("td").text(state_votes);
+        control_tr.append("td").style("text-align", "right").text(state_votes);
 
         // Add aggregation function.
         control_tbody.selectAll("input")
@@ -276,7 +278,7 @@
                 // Display candidate totals in the results table.
                 document.getElementById("results_table").rows[1].cells[0].innerHTML = biden_total
                 document.getElementById("results_table").rows[1].cells[1].innerHTML = trump_total
-                document.getElementById("results_table").rows[1].cells[2].innerHTML = biden_total + trump_total
+                document.getElementById("results_table").rows[1].cells[2].style("text-align:right").innerHTML = biden_total + trump_total
             });
     }
 

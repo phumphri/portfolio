@@ -116,7 +116,7 @@ def sandbox():
                            project_name="Electoral College",
                            current_time=datetime.datetime.utcnow())
  
-
+  
 @app.route("/sandbox_sales/<year>")
 def sandbox_sales(year):
 
