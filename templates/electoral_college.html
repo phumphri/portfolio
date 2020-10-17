@@ -50,6 +50,7 @@
             .style("height", h + "px")
 
         // Specify map parameters.
+        // Did not use MapBox tiles for map, just the borders from geojson.
         var mapboxAccessToken = 'pk.eyJ1IjoicGh1bXBocmkiLCJhIjoiY2tnNGJ1NHBsMGRoNDMxcXNhemJieGdxeSJ9.FKo4lgDkbphPAFdxMK3Kog'
         var map = L.map('map_row').setView([37.8, -96], 4);
 
@@ -278,7 +279,8 @@
                 // Display candidate totals in the results table.
                 document.getElementById("results_table").rows[1].cells[0].innerHTML = biden_total
                 document.getElementById("results_table").rows[1].cells[1].innerHTML = trump_total
-                document.getElementById("results_table").rows[1].cells[2].style("text-align:right").innerHTML = biden_total + trump_total
+                document.getElementById("results_table").rows[1].cells[2].innerHTML = biden_total + trump_total
+                document.getElementById("results_table").rows[1].cells[2].textAlign = "right"
             });
     }
 
@@ -384,6 +386,8 @@
         document.getElementById("results_table").rows[1].cells[0].innerHTML = biden_total
         document.getElementById("results_table").rows[1].cells[1].innerHTML = trump_total
         document.getElementById("results_table").rows[1].cells[2].innerHTML = biden_total + trump_total
+        document.getElementById("results_table").rows[1].cells[2].textAlign = "right"
+
     }
 </script>
 {% endblock %}

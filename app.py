@@ -39,7 +39,7 @@ historical_debt_outstanding_annual_years = None
 hostname = "localhost"
 port = "5000"
 budget_data = None
-
+  
 # Index page.
 @app.route("/")
 def home():
@@ -47,6 +47,88 @@ def home():
                            project_name="Portfolio",
                            current_time=datetime.datetime.utcnow())
 
+# Deprecate.
+# This does not buy me anything.  If a list of agencies is needed, used the following:
+# http://api.usaspending.gov/api/v2/budget_functions/list_budget_functions
+@app.route("/toptier_agencies_data", methods=['GET'])
+def toptier_agencies_data():
+    active_fy = request.args.get('active_fy')
+    active_fq = request.args.get('active_fq')
+    # percentage_of_total_budget_authority = float(request.args.get('percentage_of_total_budget_authority'))
+
+    print(" ")
+    print("Entering toptier_agencies_data()")
+    print("active_fy: " + active_fy)
+    print("active_fq: " + active_fq)
+
+    # Define an empty response.
+    response = {}
+    response["results"] = []
+    response["term"] = {}
+
+    url = "http://api.usaspending.gov/api/v2/references/toptier_agencies"
+    web_response = requests.get(url)
+    sc = web_response.status_code
+    if sc != 200:
+        message_from_the_application = "Unsuccessful " + url + ".</br>" + \
+            "response.status_code: " + web_response.status_code + "</br>" + \
+            "response.reason: " + web_response.reason + "</br>"
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    # Extract the data list from the json response
+    results = web_response.json()["results"]
+
+    # Process the dictionaries in the data list.
+    for d in results:
+
+        if d["active_fy"] != active_fy:
+            continue
+
+        if d["active_fq"] != active_fq:
+            continue
+                       
+        # if d["percentage_of_total_budget_authority"] < percentage_of_total_budget_authority:
+            # continue
+
+        response["results"].append(d)
+
+    # Add president and color to the response.
+    if active_fy >= "2021":
+        response["term"] = {"president":"placeholder", "color":"grey"}
+    elif active_fy >= "2017":
+        response["term"] = {"president":"Trump", "color":"red"}
+    elif active_fy >= "2009":
+        response["term"] = {"president":"Obama", "color":"blue"}
+    elif active_fy >= 2001:
+        response["term"] = {"president":"Bush", "color":"red"}
+    elif active_fy >= 1993:
+        response["term"] = {"president":"Clinton", "color":"blue"}
+    elif active_fy >= 1989:
+        response["term"] = {"president":"Bush", "color":"red"}
+    elif active_fy >= 1981:
+        response["term"] = {"president":"Reagan", "color":"red"}
+    elif active_fy >= 1977:
+        response["term"] = {"president":"Carter", "color":"blue"}
+    elif active_fy >= 1974:
+        response["term"] = {"president":"Ford", "color":"red"}
+    elif active_fy >= 1969:
+        response["term"] = {"president":"Nixon", "color":"red"}
+    elif active_fy >= 1963:
+        response["term"] = {"president":"Johnson", "color":"blue"}
+    elif active_fy >= 1961:
+        response["term"] = {"president":"Kenedy", "color":"blue"}
+    else:
+        response["term"] = {"president":"placeholder", "color":"grey"}
+
+    # Convert python dictionary to a json format.
+    response = json.dumps(response)
+
+    # Add status and mime type to the response.
+    response = app.response_class(
+        response=response, status=200, mimetype='application/json')
+
+    return response
 # Mortgage Tutorial
                                                                                    
 
@@ -446,13 +528,13 @@ def render_receipts_less_outlays():
 #   outlays: https://www.whitehouse.gov/wp-content/uploads/2020/02/outlays_fy21.xlsx
 #   receipts: https://www.whitehouse.gov/wp-content/uploads/2020/02/receipts_fy21.xlsx
 # Reading data from a spread sheet from a website.
-
+ 
 
 @app.route("/receipts_less_outlays_data", methods=['GET'])
 def get_receipts_less_outlays_data_from_website():
     begin_year = request.args.get('begin_year')
     end_year = request.args.get('end_year')
-
+   
     # Define an empty response.
     response = {}
     response["years"] = []
@@ -465,7 +547,7 @@ def get_receipts_less_outlays_data_from_website():
 
     # Define the budget data to be available between calls.
     global budget_data 
- 
+  
     # If budget_data already exists, bypass the query.
     if budget_data == None:
  
