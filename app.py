@@ -32,7 +32,7 @@ if False:
 # Assigning the Flask framework.
 app = Flask(__name__)
 CORS(app)
- 
+                                                                          
 # Definining global variables.
 historical_debt_outstanding_annual = None
 historical_debt_outstanding_annual_years = None   
@@ -46,7 +46,7 @@ def home():
     return render_template("index.html",
                            project_name="Portfolio",
                            current_time=datetime.datetime.utcnow())
-
+    
 # Deprecate.
 # This does not buy me anything.  If a list of agencies is needed, used the following:
 # http://api.usaspending.gov/api/v2/budget_functions/list_budget_functions
