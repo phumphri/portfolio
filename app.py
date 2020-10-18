@@ -32,7 +32,7 @@ if False:
 # Assigning the Flask framework.
 app = Flask(__name__)
 CORS(app)
-                                                                          
+                                                                                                                                                                             
 # Definining global variables.
 historical_debt_outstanding_annual = None
 historical_debt_outstanding_annual_years = None   

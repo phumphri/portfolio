@@ -11,7 +11,8 @@
 <!-- Leaflet.js -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
 
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin="">
+</script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -34,7 +35,7 @@
 
         // Get the window dimensions so the map can be sized.
         var w = window.innerWidth.toString()
-        var h = (window.innerHeight * 0.50).toString()
+        var h = (window.innerHeight * 0.40).toString()
 
         // Remove the existing map row.
         var map_row = map_container.select("#map_row")
@@ -49,6 +50,7 @@
             .style("width", w + "px")
             .style("height", h + "px")
 
+
         // Specify map parameters.
         // Did not use MapBox tiles for map, just the borders from geojson.
         var mapboxAccessToken = 'pk.eyJ1IjoicGh1bXBocmkiLCJhIjoiY2tnNGJ1NHBsMGRoNDMxcXNhemJieGdxeSJ9.FKo4lgDkbphPAFdxMK3Kog'
@@ -60,7 +62,11 @@
 
         // Add IDs to each of the svg paths.
         geo_json_layer.eachLayer(function (layer) {
-            layer._path.id = layer.feature.properties.name
+            if (layer.feature.properties.name.includes("Congressional")) {
+                layer._path.id = layer.feature.properties.name + " map"
+            } else {
+                layer._path.id = layer.feature.properties.name
+            }
         });
 
         var svg = map_row.select("svg")
@@ -82,7 +88,6 @@
         .attr("class", "container-fluid")
         .attr("id", "map_container")
 
-
     // Add results row under the svg.
     var results_row = body.append("div")
         .attr("class", "row")
@@ -93,8 +98,20 @@
         .attr("class", "col-sm-6")
         .attr("id", "results_column")
 
-    results_row.append("div")
+    // Add reset column to results row.
+    var reset_column = results_row.append("div")
         .attr("class", "col-sm-6")
+        .attr("id", "reset_column")
+
+    // Add reset checkbox to the reset column.
+    reset_column.append("input")
+        .attr("type", "button")
+        .attr("value", "Reset")
+        .attr("style", "color:black; background-color:darkgrey; ")
+        .on("click", function (d) {
+            localStorage.removeItem("control_values")
+            create_map()
+        });
 
     // Add the results table to the results column.
     var results_table = results_column.append("table")
@@ -138,9 +155,6 @@
         .attr("class", "col-sm-6")
         .attr("id", "control_heading_column")
 
-    control_heading_row.append("div")
-        .attr("class", "col-sm-6")
-
     // Add the control heading table to the control heading column.
     var control_heading_table = control_heading_column.append("table")
         .attr("class", "table")
@@ -152,20 +166,17 @@
     control_tr.append("th").text("State")
     control_tr.append("th").style("text-align", "center").text("Status")
     control_tr.append("th").style("text-align", "right").text("Votes")
- 
+
     // Add the control row.  Resizing handled by D3.
     var control_row = body.append("div")
         .attr("class", "row")
         .attr("id", "control_row")
-        .attr("style", "color:white; font-family:sans-serif; overflow-y:auto; height:15em; ")
 
     // Add the control column to the control row.
     var control_column = control_row.append("div")
         .attr("class", "col-sm-6")
         .attr("id", "control_column")
-
-    control_row.append("div")
-        .attr("class", "col-sm-6")
+        .attr("style", "color:white; font-family:sans-serif; overflow-y:auto; height:20em; ")
 
     // Add the control table to the control column.
     var control_table = control_column.append("table")
@@ -187,6 +198,9 @@
         var state_name = features[feature]["properties"]["name"]
         state_names.push(state_name)
         var state_id = state_name.replace(" ", "_")
+        var state_id = state_id.replace(" ", "_")
+        var state_id = state_id.replace(" ", "_")
+        var state_id = state_id.replace(" ", "_")
         var state_id = state_id.replace(" ", "_")
         var state_votes = features[feature]["properties"]["votes"]
         votes_by_state[state_name] = state_votes
@@ -258,7 +272,13 @@
 
                         // Get the control_button_id using the state and candidate names.
                         try {
-                            var id = "#" + control_button_ids[state_name][candidate_name]
+                            var id = control_button_ids[state_name][candidate_name]
+                            if (false) {
+                                console.log(" ")
+                                console.log("state_name:", state_name)
+                                console.log("candidate_name:", candidate_name)
+                                console.log("control_button_id:", id)
+                            }
                         } catch (err) {
                             console.log(" ")
                             console.log("click get control_button_id failed:", err.message)
@@ -266,13 +286,21 @@
                             console.log("candidate_name:", candidate_name)
                         }
 
-                        // if (document.getElementById(id).checked) {
+                        // Determine if the control_button was selected.
                         try {
-                            if (control_tbody.select(id)._groups[0][0].checked) {
+                            if (document.getElementById(id).checked) {
+                                if (false) {
+                                    console.log("Button was checked.")
+                                }
 
                                 // Increment candidate totals and update state color.
                                 var boffo = document.getElementById(state_name)
+                                if (false) {
+                                    console.log("Found boffo.")
+                                }
+
                                 boffo.setAttribute("fill-opacity", "1.0")
+
                                 if (candidate_name == "biden") {
                                     biden_total += votes_by_state[state_name]
                                     boffo.setAttribute("fill", "blue")
@@ -305,16 +333,80 @@
                 localStorage.removeItem("control_values")
                 localStorage.setItem("control_values", JSON.stringify(control_values))
 
-            });
-    }
+            }   // End of click function.      
+            );      // End of click event.
+    }           // End of for loop on features.
+
+    // Add column for congressional districts headings to the control heading row.
+    var congressional_districts_heading_column = control_heading_row.append("div")
+        .attr("class", "col-sm-6")
+        .attr("id", "congressional_districts_heading_column")
+
+    // Add a table for the congressional districts headings.
+    var congressional_districts_heading_table = congressional_districts_heading_column.append("table")
+        .attr("class", "table")
+        .attr("id", "congressional_districts_heading_table")
+
+    // Add thead to the table for congressional districts headings.
+    var congressional_districts_heading_row = congressional_districts_heading_table.append("thead")
+        .append("tr")
+
+    // Add headings for the congressional districts.
+    congressional_districts_heading_row.append("th").text("Congressional Districts")
+
+    // Add congressional districts column to the results row.
+    var districts_column = control_row.append("div")
+        .attr("class", "col-sm-6")
+        .attr("id", "district_column")
+
+    // Add the congressional districts table.
+    var districts_table = districts_column.append("table")
+        .attr("class", "table")
+        .attr("id", "districts_table")
+
+    // Add tbody to the congressional districts table.
+    var districts_tbody = districts_table.append("tbody")
+
+    // The id of the rectangles will be the name value, not the id balue.
+    var districts = []
+    districts.push({ "id": "Maine_Congressional_District_1", "name": "Maine Congressional District 1" })
+    districts.push({ "id": "Maine_Congressional_District_2", "name": "Maine Congressional District 2" })
+    districts.push({ "id": "Nebraska_Congressional_District_1", "name": "Nebraska Congressional District 1" })
+    districts.push({ "id": "Nebraska_Congressional_District_2", "name": "Nebraska Congressional District 2" })
+    districts.push({ "id": "Nebraska_Congressional_District_3", "name": "Nebraska Congressional District 3" })
+
+    // Add rectangles for the congressional districts.
+    districts_tbody.selectAll("tr")
+        .data(districts)
+        .enter()
+        .append("tr")
+        .append("td")
+        .append("svg")
+        .attr("width", 25)
+        .attr("height", 25)
+        .append("rect")
+        .attr("id", (d) => { return d.name; })
+        .attr("y", 7)
+        .attr("width", 18)
+        .attr("height", 18)
+        .attr("rx", 1)
+        .attr("fill-opacity", "0.0")
+        .attr("stroke", "darkgrey")
+        .attr("stroke-width", 3)
+
+    // Add the names of the congressional districts next to the rectangles.
+    districts_tbody.selectAll("td")
+        .data(districts)
+        .append("text")
+        .text((d) => { return d.name; })
 
     // Recreate the map row with the resized svg.
     create_map()
 
     // Only called in the creation of the map.
     function color_states() {
+
         // Get the control values from the previous session.
-        // localStorage.removeItem("control_values")
         var control_values = localStorage.getItem("control_values")
 
         // Set default values there are no control values from a previous session.
@@ -322,10 +414,10 @@
             control_values = {}
             control_values["Alabama"] = "trump"
             control_values["Alaska"] = "trump"
-            control_values["Arizona"] = "biden"
+            control_values["Arizona"] = "trump"
             control_values["Arkansas"] = "trump"
             control_values["California"] = "biden"
-            control_values["Colorado"] = "biden"
+            control_values["Colorado"] = "trump"
             control_values["Connecticut"] = "biden"
             control_values["Delaware"] = "biden"
             control_values["Florida"] = "trump"
@@ -339,6 +431,8 @@
             control_values["Kentucky"] = "trump"
             control_values["Louisiana"] = "trump"
             control_values["Maine"] = "biden"
+            control_values["Maine Congressional District 1"] = "biden"
+            control_values["Maine Congressional District 2"] = "biden"
             control_values["Maryland"] = "biden"
             control_values["Massachusetts"] = "biden"
             control_values["Michigan"] = "biden"
@@ -347,14 +441,17 @@
             control_values["Missouri"] = "trump"
             control_values["Montana"] = "trump"
             control_values["Nebraska"] = "trump"
-            control_values["Nevada"] = "biden"
+            control_values["Nebraska Congressional District 1"] = "trump"
+            control_values["Nebraska Congressional District 2"] = "trump"
+            control_values["Nebraska Congressional District 3"] = "trump"
+            control_values["Nevada"] = "trump"
             control_values["New Hampshire"] = "biden"
             control_values["New Jersey"] = "biden"
             control_values["New Mexico"] = "biden"
             control_values["New York"] = "biden"
             control_values["North Carolina"] = "trump"
             control_values["North Dakota"] = "trump"
-            control_values["Ohio"] = "trump"
+            control_values["Ohio"] = "biden"
             control_values["Oklahoma"] = "trump"
             control_values["Oregon"] = "biden"
             control_values["Pennsylvania"] = "biden"
@@ -365,12 +462,13 @@
             control_values["Texas"] = "trump"
             control_values["Utah"] = "trump"
             control_values["Vermont"] = "biden"
-            control_values["Virginia"] = "biden"
+            control_values["Virginia"] = "trump"
             control_values["Washington"] = "biden"
             control_values["West Virginia"] = "trump"
             control_values["Wisconsin"] = "biden"
             control_values["Wyoming"] = "trump"
             control_values["District of Columbia"] = "biden"
+
             localStorage.setItem("control_values", JSON.stringify(control_values))
         } else {
             control_values = JSON.parse(control_values)
@@ -383,12 +481,17 @@
 
             // Click on the corresponding button.
             // The button may not exist during initial load.
+            // Get the candidate name from the control values.
             var candidate_name = control_values[state_name]
 
+            // Get the button id based on state and candidate names.
             var button_id = control_button_ids[state_name][candidate_name]
+
+            // This button is checked since the candidate was specified in the control values.
             document.getElementById(button_id).checked = true
 
-            var button = document.getElementById(button_id)
+            // Deprecate
+            // var button = document.getElementById(button_id)
 
             // Boffo is the state.
             try {
