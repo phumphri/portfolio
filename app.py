@@ -32,7 +32,7 @@ if False:
 # Assigning the Flask framework.
 app = Flask(__name__)
 CORS(app)
-                                                                                                                                                                             
+                                                                                                                                                                                
 # Definining global variables.
 historical_debt_outstanding_annual = None
 historical_debt_outstanding_annual_years = None   
@@ -47,79 +47,33 @@ def home():
                            project_name="Portfolio",
                            current_time=datetime.datetime.utcnow())
     
-# Deprecate.
-# This does not buy me anything.  If a list of agencies is needed, used the following:
-# http://api.usaspending.gov/api/v2/budget_functions/list_budget_functions
+# Do not delete!
+# This is an example of view function using a class to query data.
 @app.route("/toptier_agencies_data", methods=['GET'])
 def toptier_agencies_data():
+
+    # Get the active fiscal year and quarter from parameter values.
     active_fy = request.args.get('active_fy')
     active_fq = request.args.get('active_fq')
-    # percentage_of_total_budget_authority = float(request.args.get('percentage_of_total_budget_authority'))
 
-    print(" ")
-    print("Entering toptier_agencies_data()")
-    print("active_fy: " + active_fy)
-    print("active_fq: " + active_fq)
+    # The Toptier_Agencies_Data "module" is in subdirectory "py"
+    # under subdirectory "static".
+    from static.py import Toptier_Agencies_Data
 
-    # Define an empty response.
-    response = {}
-    response["results"] = []
-    response["term"] = {}
+    # Instantiate the "class" in the "module" as "o"
+    o = Toptier_Agencies_Data.Toptier_Agencies_Data()
 
-    url = "http://api.usaspending.gov/api/v2/references/toptier_agencies"
-    web_response = requests.get(url)
-    sc = web_response.status_code
-    if sc != 200:
-        message_from_the_application = "Unsuccessful " + url + ".</br>" + \
-            "response.status_code: " + web_response.status_code + "</br>" + \
-            "response.reason: " + web_response.reason + "</br>"
+    # The "requests" is needed to make HTTP calls during the session.
+    return_dictionary = o.get_toptier_agencies_data(requests, active_fy, active_fq)
+
+    # Return the custom 500 page if the query fails.
+    if return_dictionary["status"] == "fail":
+        message_from_the_application = return_dictionary["message_from_the_application"]
         print(message_from_the_application)
         raise InternalServerError(message_from_the_application)
 
-    # Extract the data list from the json response
-    results = web_response.json()["results"]
-
-    # Process the dictionaries in the data list.
-    for d in results:
-
-        if d["active_fy"] != active_fy:
-            continue
-
-        if d["active_fq"] != active_fq:
-            continue
-                       
-        # if d["percentage_of_total_budget_authority"] < percentage_of_total_budget_authority:
-            # continue
-
-        response["results"].append(d)
-
-    # Add president and color to the response.
-    if active_fy >= "2021":
-        response["term"] = {"president":"placeholder", "color":"grey"}
-    elif active_fy >= "2017":
-        response["term"] = {"president":"Trump", "color":"red"}
-    elif active_fy >= "2009":
-        response["term"] = {"president":"Obama", "color":"blue"}
-    elif active_fy >= 2001:
-        response["term"] = {"president":"Bush", "color":"red"}
-    elif active_fy >= 1993:
-        response["term"] = {"president":"Clinton", "color":"blue"}
-    elif active_fy >= 1989:
-        response["term"] = {"president":"Bush", "color":"red"}
-    elif active_fy >= 1981:
-        response["term"] = {"president":"Reagan", "color":"red"}
-    elif active_fy >= 1977:
-        response["term"] = {"president":"Carter", "color":"blue"}
-    elif active_fy >= 1974:
-        response["term"] = {"president":"Ford", "color":"red"}
-    elif active_fy >= 1969:
-        response["term"] = {"president":"Nixon", "color":"red"}
-    elif active_fy >= 1963:
-        response["term"] = {"president":"Johnson", "color":"blue"}
-    elif active_fy >= 1961:
-        response["term"] = {"president":"Kenedy", "color":"blue"}
-    else:
-        response["term"] = {"president":"placeholder", "color":"grey"}
+    # Get the embedded python dictionary that will be used in the response.
+    response = return_dictionary["response"]
 
     # Convert python dictionary to a json format.
     response = json.dumps(response)
@@ -128,10 +82,10 @@ def toptier_agencies_data():
     response = app.response_class(
         response=response, status=200, mimetype='application/json')
 
+    # Return the json package to the calling application.
     return response
-# Mortgage Tutorial
                                                                                    
-
+# Mortgage Tutorial
 @app.route("/examples_01.01.loancalc.html")
 def mortgage():
     return render_template("examples_01.01.loancalc.html")
