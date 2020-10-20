@@ -74,6 +74,35 @@
         svg.selectAll("path")
             .attr("fill-opacity", "0.0")
             .attr("stroke", "darkgrey")
+            .on("click", (d) => {
+
+                // The radio button identifiers do not contain spaces.
+                // so they can be selected by D3.
+                var id = d.target.id
+                var i = 0
+                while (id.indexOf(" ") > -1) {
+                    id = id.replace(" ", "_")
+                    if (i++ > 12) {
+                        console.log("Oops, i:", i)
+                        break;
+                    }
+                }
+                // Get the current color and opacity of the state.
+                var current_color = d.target.attributes[6].value
+                var current_opacity = d.target.attributes[7].value
+
+                // Click on the radio button to toggle the candidate.
+                if (current_color == "red" && current_opacity == "1.0") {
+                    var id = id + "_biden_button"
+                } else if (current_color == "blue" && current_opacity == "1.0") {
+                    id = id + "_clear_button"
+                } else if (current_opacity == "0.0") {
+                    id = id + "_trump_button"
+                } else {
+                    console.log("Error:  Color and opacity not matched.")
+                }
+                document.getElementById(id).click()
+            });
 
         color_states()
     }
@@ -197,10 +226,16 @@
         var state_name = features[feature]["properties"]["name"]
         state_names.push(state_name)
         var state_id = state_name.replace(" ", "_")
-        var state_id = state_id.replace(" ", "_")
-        var state_id = state_id.replace(" ", "_")
-        var state_id = state_id.replace(" ", "_")
-        var state_id = state_id.replace(" ", "_")
+
+        var i = 0
+        while (state_id.indexOf(" ") > -1) {
+            state_id = state_id.replace(" ", "_")
+            if (i++ > 12) {
+                console.log("Oops, i:", i)
+                break
+            }
+        }
+
         var state_votes = features[feature]["properties"]["votes"]
         votes_by_state[state_name] = state_votes
 
@@ -338,7 +373,7 @@
 
     // Add column for congressional districts headings to the control heading row.
     var congressional_districts_heading_column = control_heading_row.append("div")
-        .attr("class", "col-sm-6")
+        .attr("class", "col-sm-3")
         .attr("id", "congressional_districts_heading_column")
 
     // Add a table for the congressional districts headings.
@@ -355,7 +390,7 @@
 
     // Add congressional districts column to the results row.
     var districts_column = control_row.append("div")
-        .attr("class", "col-sm-6")
+        .attr("class", "col-sm-3")
         .attr("id", "district_column")
 
     // Add the congressional districts table.
@@ -374,7 +409,7 @@
     districts.push({ "id": "Nebraska_Congressional_District_2", "name": "Nebraska Congressional District 2" })
     districts.push({ "id": "Nebraska_Congressional_District_3", "name": "Nebraska Congressional District 3" })
 
-    // Add rectangles for the congressional districts.
+    // Add rectangles for the congressional districts.  The name is used for the visualizations.
     districts_tbody.selectAll("tr")
         .data(districts)
         .enter()
@@ -392,12 +427,73 @@
         .attr("fill-opacity", "0.0")
         .attr("stroke", "darkgrey")
         .attr("stroke-width", 3)
+        .on('click', (d) => {
+
+            // The radio button identifiers do not contain spaces.
+            // so they can be selected by D3.
+            var id = d.target.id
+            var i = 0
+            while (id.indexOf(" ") > -1) {
+                id = id.replace(" ", "_")
+                if (i++ > 12) {
+                    console.log("Oops, i:", i)
+                    break;
+                }
+            }
+
+            // Get the current color and opacity of the state.
+            var current_color = d.target.attributes[8].value
+            var current_opacity = d.target.attributes[5].value
+
+            // Click on the radio button to toggle the candidate.
+            if (current_color == "red" && current_opacity == "1.0") {
+                var id = id + "_biden_button"
+            } else if (current_color == "blue" && current_opacity == "1.0") {
+                id = id + "_clear_button"
+            } else if (current_opacity == "0.0") {
+                id = id + "_trump_button"
+            } else {
+                console.log("Error:  Color and opacity not matched.")
+                id = + "_clear_button"
+            }
+            document.getElementById(id).click()
+        });
 
     // Add the names of the congressional districts next to the rectangles.
     districts_tbody.selectAll("td")
         .data(districts)
         .append("text")
         .text((d) => { return d.name; })
+
+    // Add column for instruction headings to the control heading row.
+    var instruction_heading_column = control_heading_row.append("div")
+        .attr("class", "col-sm-3")
+        .attr("id", "instruction_heading_column")
+
+    // Add a heading for the instructions
+    var instruction_fieldset = instruction_heading_column.append("fieldset")
+        .append("legend")
+        .text("Instructions")
+
+    // Add the instruction column to the control row.
+    var instruction_column = control_row.append("div")
+        .attr("class", "col-sm-3")
+        .attr("id", "instruction_column")
+
+    // Add an unorder list of instructions to the instruction column.
+    instructions = []
+    instructions.push("To select a winner of a state, click on the radio button in the table in the lower left corner.");
+    instructions.push("Alternatively, click on the state or congressional district to toggle through the candidates.");
+    instructions.push('The "Reset" button restores selections to a hypothetical tie.');
+    instructions.push("Your selections will be saved in local storage between sessions.");
+    var instruction_ul = instruction_column.append("ul")
+        .attr("class", "ul")
+        .attr("id", "instruction_ul")
+    instruction_ul.selectAll("li")
+        .data(instructions)
+        .enter()
+        .append("li")
+        .text((d) => { return d; })
 
     // Recreate the map row with the resized svg.
     create_map()
