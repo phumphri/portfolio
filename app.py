@@ -28,25 +28,315 @@ if False:
     os.system("python -m pip install --upgrade datetime")
     os.system("python -m pip install --upgrade werkzeug")
     os.system("python -m pip install --upgrade werkzeug.exceptions")
- 
+   
 # Assigning the Flask framework.
 app = Flask(__name__)
 CORS(app)
-                                                                                                                                                                                                                                              
+                                                                                                                                                                                                                                                       
 # Definining global variables.
 historical_debt_outstanding_annual = None
 historical_debt_outstanding_annual_years = None   
 hostname = "localhost"
 port = "5000"
 budget_data = None
-  
+toptier_agencies_class = None
+
+# Instantiated Budget_Function class.
+bf = None
+   
 # Index page.
 @app.route("/")
 def home():
     return render_template("index.html",
                            project_name="Portfolio",
                            current_time=datetime.datetime.utcnow())
+                                      
+# Budget Treemap
+@app.route("/budget_treemap")
+def budget_treemap():
+    return render_template("budget_treemap.html",
+                           project_name="Agency Spending Treemap (Loading Data)",
+                           current_time=datetime.datetime.utcnow())
+                                        
+# This provides outlays data for the tree map.
+@app.route("/budget_function_total", methods=["GET"])
+def budget_function_total():
+
+    # The Budget_Function "module" is in subdirectory "py"
+    # under subdirectory "static".
+    from static.py import Budget_Function_Total
+
+    # Instantiate the "class" in the "module".
+    bft = Budget_Function_Total.Budget_Function_Total()
+ 
+    # The "requests" is needed to make HTTP calls during the session.
+    # The "app" is needed to build a response with status and mimetype.
+    print(" ")
+    print("app: Calling bft.get_budget_function_total.")
+    return_dictionary = bft.get_budget_function_total(app, requests)
+    print("app:  return_dictionary[status]:  " + str(return_dictionary["status"]))
+    print(" ")
+
+    # Return the custom 500 page if the query fails.
+    if return_dictionary["status"] != 200:
+        message_from_the_application = return_dictionary["message_from_the_application"]
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    # Get the embedded python dictionary that will be used in the response.
+    return return_dictionary["response"]
+                           
+# This provides outlays data for the tree map.
+@app.route("/budget_function_status", methods=["GET"])
+def budget_function_status():
+              
+    # The Budget_Function "module" is in subdirectory "py"
+    # under subdirectory "static".
+    from static.py import Budget_Function
     
+    # Instantiate the "class" in the "module".
+    global bf
+    if bf == None:
+        bf = Budget_Function.Budget_Function()
+    
+    # The "requests" is needed to make HTTP calls during the session.
+    return_dictionary = bf.get_budget_function_status(app)
+ 
+    # Return the custom 500 page if the query fails.
+    if return_dictionary["status"] != 200:
+        message_from_the_application = return_dictionary["message_from_the_application"]
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    # Get the embedded python dictionary that will be used in the response.
+    return return_dictionary["response"]
+
+# This provides outlays data for the tree map.
+@app.route("/agency_hierarchy", methods=["GET"])
+def agency_hierarchy():
+        
+    # The Budget_Function "module" is in subdirectory "py"
+    # under subdirectory "static".
+    from static.py import Budget_Function
+   
+    # Instantiate the "class" in the "module".
+    global bf
+    if bf == None:
+        bf = Budget_Function.Budget_Function()
+  
+    # The "requests" is needed to make HTTP calls during the session.
+    # The "app" is needed to build a response with status and mimetype.
+    return_dictionary = bf.get_agency_hierarchy(app, requests)
+
+    # Return the custom 500 page if the query fails.
+    if return_dictionary["status"] != 200:
+        message_from_the_application = return_dictionary["message_from_the_application"]
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    # Get the embedded python dictionary that will be used in the response.
+    return return_dictionary["response"]
+# This provides outlays data for the tree map.
+@app.route("/budget_hierarchy", methods=["GET"])
+def budget_hierarchy():
+       
+    toptier_code = request.args.get('toptier_code')
+
+    if toptier_code == None:
+        s = "Error in app.budget_hierarchy() at line 123.  "
+        s += "Value for parameter toptier_code was missing."
+        message_from_the_application = s
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+
+    # The Budget_Function "module" is in subdirectory "py"
+    # under subdirectory "static".
+    from static.py import Budget_Function
+   
+    # Instantiate the "class" in the "module".
+    global bf
+    if bf == None:
+        bf = Budget_Function.Budget_Function()
+  
+    # The "requests" is needed to make HTTP calls during the session.
+    # The "app" is needed to build a response with status and mimetype.
+    # The "toptier_code" is the parent of the target budgets.
+    return_dictionary = bf.get_budget_hierarchy(app, requests, toptier_code)
+
+    # Return the custom 500 page if the query fails.
+    if return_dictionary["status"] != 200:
+        message_from_the_application = return_dictionary["message_from_the_application"]
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    # Get the embedded python dictionary that will be used in the response.
+    return return_dictionary["response"]
+
+# This provides outlays data for the tree map.
+@app.route("/item_hierarchy", methods=["GET"])
+def item_hierarchy():
+       
+    toptier_code = request.args.get('toptier_code')
+    budget_name = request.args.get('budget_name')
+
+    if toptier_code == None:
+        s = "Error in app.item_hierarchy() at line 156.  "
+        s += "Value for parameter toptier_code was missing."
+        message_from_the_application = s
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    if budget_name == None:
+        s = "Error in app.item_hierarchy() at line 166.  "
+        s += "Value for parameter budget_name was missing."
+        message_from_the_application = s
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    # The Budget_Function "module" is in subdirectory "py"
+    # under subdirectory "static".
+    from static.py import Budget_Function
+   
+    # Instantiate the "class" in the "module".
+    global bf
+    if bf == None:
+        bf = Budget_Function.Budget_Function()
+   
+    # The "requests" is needed to make HTTP calls during the session.
+    # The "app" is needed to build a response with status and mimetype.
+    # The "toptier_code" is the parent of the target budget.
+    # The "budget_name" is the parent of the target items.
+    return_dictionary = bf.get_item_hierarchy(app, requests, toptier_code, budget_name)
+
+    # Return the custom 500 page if the query fails.
+    if return_dictionary["status"] != 200:
+        message_from_the_application = return_dictionary["message_from_the_application"]
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    # Get the embedded python dictionary that will be used in the response.
+    return return_dictionary["response"]
+
+# This provides outlays data for the tree map.
+@app.route("/budget_function", methods=["GET"])
+def budget_function():
+ 
+    # The Budget_Function "module" is in subdirectory "py"
+    # under subdirectory "static".
+    from static.py import Budget_Function
+
+    # Instantiate the "class" in the "module".
+    global bf
+    if bf == None:
+        bf = Budget_Function.Budget_Function()
+ 
+    # The "requests" is needed to make HTTP calls during the session.
+    # The "app" is needed to build a response with status and mimetype.
+    print(" ")
+    print("app: Calling bf.get_budget_function().")
+    return_dictionary = bf.get_budget_function(app, requests)
+    print("app:  return_dictionary[status]:  " + str(return_dictionary["status"]))
+    print(" ")
+
+    # Return the custom 500 page if the query fails.
+    if return_dictionary["status"] != 200:
+        message_from_the_application = return_dictionary["message_from_the_application"]
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    # Get the embedded python dictionary that will be used in the response.
+    return return_dictionary["response"]
+
+# This provides outlays data for the tree map.
+@app.route("/budget_function_agency", methods=["GET"])
+def budget_function_agency():
+
+    toptier_code = request.args.get('toptier_code')
+    agency_name = request.args.get('agency_name')
+
+    if toptier_code == None:
+        message_from_the_application = "Missing parameter value for toptier_code."
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    if agency_name == None:
+        message_from_the_application = "Missing paramenter value for agency_name."
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    # The Budget_Function "module" is in subdirectory "py"
+    # under subdirectory "static".
+    from static.py import Budget_Function_Agency
+
+    # Instantiate the "class" in the "module".
+    bfa = Budget_Function_Agency.Budget_Function_Agency()
+ 
+    # The "requests" is needed to make HTTP calls during the session.
+    # The "app" is needed to build a response with status and mimetype.
+    print(" ")
+    print("app: Calling bf.get_budget_function_agency.")
+    return_dictionary = bfa.get_budget_function_agency(app, requests, agency_name, toptier_code)
+    print("app:  return_dictionary[status]:  " + str(return_dictionary["status"]))
+    print(" ")
+
+    # Return the custom 500 page if the query fails.
+    if return_dictionary["status"] != 200:
+        message_from_the_application = return_dictionary["message_from_the_application"]
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+                      
+    # Get the embedded python dictionary that will be used in the response.
+    return return_dictionary["response"]
+  
+# This provides outlays data for the tree map.
+@app.route("/budget_function_budget", methods=["GET"])
+def budget_function_budget():
+  
+    toptier_code = request.args.get('toptier_code')
+    agency_name = request.args.get('agency_name')
+    budget_name = request.args.get('budget_name')
+
+    if toptier_code == None:
+        message_from_the_application = "Missing parameter value for toptier_code."
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    if agency_name == None:
+        message_from_the_application = "Missing paramenter value for agency_name."
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    if budget_name == None:
+        message_from_the_application = "Missing paramenter value for budget_name."
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+ 
+    # The Budget_Function "module" is in subdirectory "py"
+    # under subdirectory "static".
+    from static.py import Budget_Function_Budget
+
+    # Instantiate the "class" in the "module".
+    bfb = Budget_Function_Budget.Budget_Function_Budget()
+ 
+    # The "requests" is needed to make HTTP calls during the session.
+    # The "app" is needed to build a response with status and mimetype.
+    print(" ")
+    print("app: Calling bf.get_budget_function_budget.")
+    return_dictionary = bfb.get_budget_function_budget(
+        app, requests, agency_name, toptier_code, budget_name)
+    print("app:  return_dictionary[status]:  " + str(return_dictionary["status"]))
+    print(" ")
+
+    # Return the custom 500 page if the query fails.
+    if return_dictionary["status"] != 200:
+        message_from_the_application = return_dictionary["message_from_the_application"]
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    # Get the embedded python dictionary that will be used in the response.
+    return return_dictionary["response"]
+
 # Do not delete!
 # This is an example of view function using a class to query data.
 @app.route("/toptier_agencies_data", methods=['GET'])
@@ -55,16 +345,19 @@ def toptier_agencies_data():
     # Get the active fiscal year and quarter from parameter values.
     active_fy = request.args.get('active_fy')
     active_fq = request.args.get('active_fq')
-
+        
     # The Toptier_Agencies_Data "module" is in subdirectory "py"
     # under subdirectory "static".
     from static.py import Toptier_Agencies_Data
 
-    # Instantiate the "class" in the "module" as "o"
-    o = Toptier_Agencies_Data.Toptier_Agencies_Data()
-
+    # Instantiate the "class" in the "module".
+    global toptier_agencies_class
+    if toptier_agencies_class == None:
+        toptier_agencies_class = Toptier_Agencies_Data.Toptier_Agencies_Data()
+ 
     # The "requests" is needed to make HTTP calls during the session.
-    return_dictionary = o.get_toptier_agencies_data(requests, active_fy, active_fq)
+    # The "app" is needed to build a response with status and mimetype.
+    return_dictionary = toptier_agencies_class.get_toptier_agencies_data(app, requests, active_fy, active_fq)
 
     # Return the custom 500 page if the query fails.
     if return_dictionary["status"] == "fail":
@@ -73,17 +366,8 @@ def toptier_agencies_data():
         raise InternalServerError(message_from_the_application)
 
     # Get the embedded python dictionary that will be used in the response.
-    response = return_dictionary["response"]
+    return return_dictionary["response"]
 
-    # Convert python dictionary to a json format.
-    response = json.dumps(response)
-
-    # Add status and mime type to the response.
-    response = app.response_class(
-        response=response, status=200, mimetype='application/json')
-
-    # Return the json package to the calling application.
-    return response
                                                                                    
 # Mortgage Tutorial
 @app.route("/examples_01.01.loancalc.html")

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+
+
+<script src="https://d3js.org/d3.v6.min.js" charset="utf-8"></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+{% endblock %}
+
+{% block title %}Budget Treemap{% endblock %}
+
+{% block body %}
+{{ super() }}
+<h3>Billions of Dollars</h3>
+<h4 id="trail">Top Ten Agencies</h4>
+<h4 id="status">Loading Data</h4>
+<script>
+    svg = null
+    data = null
+    url = "/agency_hierarchy"
+    leaf_level = "Agency"
+
+    // Get budget data.
+    function budget_function() {
+
+        var xmlhttp = new XMLHttpRequest()
+
+        // Build the SVG when a valid response is returned.
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+
+                // Convert json response text to a response dictionary.
+                data = JSON.parse(this.responseText)
+                d3.select("#status").text("Total: " + data["value"])
+
+                create_svg()
+            }
+        };
+
+        // Send the request and wait for the valid response.
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send();
+
+
+        var current_agency_name = "Starting"
+        var j = 0
+        var check_status = setInterval(() => {
+
+            var xmlhttp2 = new XMLHttpRequest()
+
+            xmlhttp2.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    current_agency_name = JSON.parse(this.responseText)
+
+                    if (current_agency_name == null) {
+                        clearInterval(check_status)
+                    } else {
+                        d3.select("#status").text("Loading agency: " + current_agency_name)
+                    }
+
+                }
+            }
+
+            xmlhttp2.open("GET", "/budget_function_status", true);
+            xmlhttp2.send();
+
+            if (current_agency_name == null) {
+                clearInterval(check_status)
+            }
+
+            if (j > 1000) {
+                console.log("j exceeded 100.  Clearing interval.")
+                clearInterval(check_status)
+            }
+
+        }, 1000)
+    }
+
+    function create_svg() {
+
+        if (url.indexOf("agency_hierarchy") > -1) {
+            d3.select("h1").text("Agency Spending Treemap")
+            leaf_level = "Agency"
+        } else if (url.indexOf("budget_hierarchy") > -1) {
+            d3.select("h1").text("Budget Spending Treemap")
+            leaf_level = "Budget"
+        } else if (url.indexOf("item_hierarchy") > -1) {
+            d3.select("h1").text("Budget Item Spending Treemap")
+            leaf_level = "Item"
+        } else {
+            console.log(" ")
+            console.log("Error in budget_treemap:  Invalid url:", url)
+        }
+
+        // Remove the prior svg.
+        x = document.getElementById("svg")
+        if (x) {
+            d3.select("#svg").remove()
+        }
+
+        // Create the a placeholder svg to get row dimensions.
+        var row = d3.select("#svg_row")
+        svg = row.append("svg")
+            .attr("width", 500)
+            .attr("height", 500)
+            .attr("id", "placeholder")
+
+        svg_row.width = parseInt((document.getElementById("svg_row").getBoundingClientRect().width).toFixed(0))
+        svg_row.height = parseInt((document.getElementById("svg_row").getBoundingClientRect().height).toFixed(0))
+
+        d3.select("#placeholder").remove();
+
+        // Create the svg using the column dimensions.
+        var row = d3.select("#svg_row")
+        svg = row.append("svg")
+            .attr("width", svg_row.width)
+            .attr("height", svg_row.height)
+            .attr("id", "svg")
+        x = document.getElementById("svg")
+        if (!x) {
+            console.log("failed to created svg.")
+        }
+
+        // Give the data to this cluster layout:
+        var root = d3.hierarchy(data)
+            .sum(function (d) { return d.value })
+
+        // Then d3.treemap computes the position of each element of the hierarchy
+        d3.treemap()
+            .size([(svg_row.width * 1.5), (svg_row.height * 0.9)])
+            .paddingTop(28)
+            .paddingRight(7)
+            .paddingInner(3)      
+            .paddingOuter(10)
+            // .padding(5)
+            (root)
+
+        // use this information to add rectangles:
+        svg
+            .selectAll("rect")
+            .data(root.leaves())
+            .enter()
+            .append("rect")
+            .attr("id", function (d) {
+                var id = {}
+                if (leaf_level == "Agency") {
+                    id["leaf_level"] = "Agency"
+                    id["toptier_code"] = d.data.toptier_code
+                    id["agency_name"] = d.data.name
+                    id["budget_name"] = "none"
+                } else if (leaf_level == "Budget") {
+                    id["leaf_level"] = "Budget"
+                    id["toptier_code"] = d.parent.data.toptier_code
+                    id["agency_name"] = d.parent.data.name,
+                        id["budget_name"] = d.data.name
+                } else if (leaf_level == "Item") {
+                    id["leaf_level"] = "Item"
+                    id["toptier_code"] = d.parent.data.toptier_code
+                    id["agency_name"] = d.parent.data.agency_name,
+                    id["budget_name"] = d.parent.data.name
+                } else {
+                    console.log(" ")
+                    console.log("Error in budget_treemap:  Invalid leaf_level:", leaf_level)
+                }
+                return JSON.stringify(id)
+            })
+            .attr('x', function (d) { return d.x0; })
+            .attr('y', function (d) { return d.y0; })
+            .attr('width', function (d) { return d.x1 - d.x0; })
+            .attr('height', function (d) { return d.y1 - d.y0; })
+            .style("stroke", "black")
+            .style("fill", "blue")
+            .style("opacity", 0.5)
+            .on('click', (d) => {
+
+                var id = JSON.parse(d.target.id)
+                var leaf_level = id["leaf_level"]
+                var agency_name = id["agency_name"]
+                var toptier_code = id["toptier_code"]
+                var budget_name = id["budget_name"]
+
+                var original_agency_name = agency_name
+                var original_budget_name = budget_name
+
+                var i = 0
+                while (agency_name.indexOf(" ") > -1) {
+                    agency_name = agency_name.replace(" ", "%20")
+                    agency_name = agency_name.replace("-", "%2D")
+                    if (i++ > 12) {
+                        break
+                    }
+                }
+
+                var i = 0
+                while (budget_name.indexOf(" ") > -1) {
+                    budget_name = budget_name.replace(" ", "%20")
+                    budget_name = budget_name.replace("-", "%2D")
+                    if (i++ > 12) {
+                        break
+                    }
+                }
+
+                if (leaf_level == "Agency") {
+                    d3.select("h1").text("Budget Spending Treeman (Loading Data)")
+                    url = "/budget_hierarchy"
+                    url += "?toptier_code=" + toptier_code
+                    url += "&agency_name=" + agency_name
+                    budget_function()
+                    d3.select("#trail").text("Top Ten Budgets for " + original_agency_name)
+
+                } else if (leaf_level == "Budget") {
+                    d3.select("h1").text("Item Spending Treemap (Loading Data)")
+                    url = "/item_hierarchy"
+                    url += "?toptier_code=" + toptier_code
+                    url += "&budget_name=" + budget_name
+                    budget_function()
+                    d3.select("#trail").text("Top Ten Items for Budget " + original_budget_name 
+                        + ", Agency " + original_agency_name)
+
+                } else if (leaf_level == "Item") {
+                    d3.select("h1").text("Agency Spending Treemap (Loading Data)")
+                    url = "/agency_hierarchy"
+                    budget_function()
+                    d3.select("#trail").text("Top Ten Agencies")
+
+                } else {
+                    console.log(" ")
+                    console.log("budget_treemap.html@241:  Invalid leaf_level:", leaf_level)
+                }
+            })
+
+        svg
+            .selectAll("title")
+            .data(root.leaves())
+            .enter()
+            .append("text")
+            .attr("x", function (d) { return d.x0 + 5 })    // +10 to adjust position (more right)
+            .attr("y", function (d) { return d.y0 + 20 })    // +20 to adjust position (lower)
+            .text(function (d) { return d.data.name })
+            .attr("font-size", "14px")
+            .attr("fill", "white")
+
+        // and to add the text labels
+        svg
+            .selectAll("vals")
+            .data(root.leaves())
+            .enter()
+            .append("text")
+            .attr("x", function (d) { return d.x0 + 5 })    // +10 to adjust position (more right)
+            .attr("y", function (d) { return d.y0 + 45 })    // +20 to adjust position (lower)
+            .text(function (d) { return d.data.value })
+            .attr("font-size", "14px")
+            .attr("fill", "white")
+    }
+
+    // Using bootstrap, create row and column for the svg.
+
+    var body = d3.select("body")
+    body.attr("onresize", "budget_function()")
+
+    var container = body.append("div")
+        .attr("class", "container-fluid")
+
+    var row = container.append("div")
+        .attr("class", "row")
+        .attr("id", "svg_row")
+
+    var instruction_row = container.append("div")
+        .attr("class", "row")
+        .attr("id", "instruction_row")
+
+    var instruction_column = instruction_row.append("div")
+        .attr("class", "col-sm-6")
+        .attr("id", "instruction_column")
+
+    var instruction_fieldset = instruction_column.append("fieldset")
+        .attr("id", "instruction_fieldset")
+
+    instruction_fieldset.append("legend")
+        .append("h4")
+        .text("Instructions")
+
+    // Add an unorder list of instructions to the instruction column.
+    var instructions = []
+    instructions.push("Wait until the data is loaded and the agencies are displayed.");
+    instructions.push("Click on a square for an agency to see the budgets for that agency.");
+    instructions.push("When budgets for an agency are displayed, click on a square for a budget to see the items for that budget.");
+    instructions.push('When items are displayed for a budget, click on any square to return to the agencies.');
+
+    var instruction_ul = instruction_fieldset.append("ul")
+        .attr("class", "ul")
+        .attr("id", "instruction_ul")
+
+    instruction_ul.selectAll("li")
+        .data(instructions)
+        .enter()
+        .append("li")
+        .append("h4")
+        .text((d) => { return d; })
+
+    budget_function()
+
+</script>
+{% endblock %}
