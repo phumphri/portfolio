@@ -1,6 +1,6 @@
 import os
 import xlrd
-import requests
+import requests 
 import decimal
 import psycopg2
 import datetime
@@ -32,7 +32,7 @@ if False:
 # Assigning the Flask framework.
 app = Flask(__name__)
 CORS(app)
-                                                                                                                                                                                                                                                       
+                                                                                                                                                                                                                                                         
 # Definining global variables.
 historical_debt_outstanding_annual = None
 historical_debt_outstanding_annual_years = None   
@@ -40,24 +40,70 @@ hostname = "localhost"
 port = "5000"
 budget_data = None
 toptier_agencies_class = None
-
+      
 # Instantiated Budget_Function class.
 bf = None
-   
+                          
 # Index page.
 @app.route("/")
 def home():
     return render_template("index.html",
                            project_name="Portfolio",
                            current_time=datetime.datetime.utcnow())
-                                      
+                                                
 # Budget Treemap
 @app.route("/budget_treemap")
 def budget_treemap():
     return render_template("budget_treemap.html",
                            project_name="Agency Spending Treemap (Loading Data)",
                            current_time=datetime.datetime.utcnow())
-                                        
+   
+# Budget Treemap
+@app.route("/loc")
+def loc():
+    return render_template("library_of_congress.html",
+                           project_name="Library of Congress",
+                           current_time=datetime.datetime.utcnow())
+# Library of Congress
+@app.route("/library_of_congress")
+def library_of_congress():
+
+    print(" ")
+    print("Enter /library_of_congress")
+    from static.py import Library_of_Congress
+ 
+
+    # Get the question parameter value.
+    q = request.args.get('q')
+ 
+    if q == None:
+        s = "Error app.library_of_congress(): Parameter value for q was missing."
+        message_from_the_application = s
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+ 
+    # Instantiate the Library of Congress.
+    print("Instantiating Library_of_Congress.")
+    loc = Library_of_Congress.Library_of_Congress()
+
+    print(" ")
+    print("dir(loc):")
+    print(dir(loc))
+
+    print(" ")
+    print("Calling get_references for q: " + q)
+    return_dictionary = loc.get_references(app, requests, q)
+
+    # Return the custom 500 page if the query fails.
+    if return_dictionary["status"] != 200:
+        message_from_the_application = return_dictionary["message_from_the_application"]
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    # Get the embedded python list that will be used in the response.
+    return return_dictionary["response"]
+
+
 # This provides outlays data for the tree map.
 @app.route("/budget_function_total", methods=["GET"])
 def budget_function_total():
