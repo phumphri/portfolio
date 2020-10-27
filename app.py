@@ -18,6 +18,7 @@ from flask import (
 import json
 import socket
 import flask
+from static.py import presidents_and_parties as pap
 if False:
     print('Updating libraries.')
     os.system("python -m pip install --upgrade pip")
@@ -51,6 +52,35 @@ def home():
                            project_name="Portfolio",
                            current_time=datetime.datetime.utcnow())
                                                 
+# Bureau of Economic Analysis
+@app.route("/bea")
+def bea():
+    return render_template("bureau_of_economic_analysis.html",
+                           project_name="Bureau of Economic Analysis",
+                           current_time=datetime.datetime.utcnow())
+
+# Bureau of Economic Analysis
+@app.route("/bureau_of_economic_analysis")
+def bureau_of_economic_analysis():
+
+    # Inport the module containing the class.
+    from static.py import Bureau_of_Economic_Analysis
+
+    # Instantiate the class in the module.
+    bea = Bureau_of_Economic_Analysis.Bureau_of_Economic_Analysis()
+ 
+    # Query the Bureau of Economic Analysis for quarterly GDP percent changes.
+    return_dictionary = bea.get_quarters(app, requests)
+
+    # Return the custom 500 page if the query fails.
+    if return_dictionary["status"] != 200:
+        message_from_the_application = return_dictionary["message_from_the_application"]
+        print(message_from_the_application)
+        raise InternalServerError(message_from_the_application)
+
+    # Get the embedded python list that will be used in the response.
+    return return_dictionary["response"]               
+
 # Budget Treemap
 @app.route("/budget_treemap")
 def budget_treemap():
@@ -58,12 +88,13 @@ def budget_treemap():
                            project_name="Agency Spending Treemap (Loading Data)",
                            current_time=datetime.datetime.utcnow())
    
-# Budget Treemap
+# Library of Congress
 @app.route("/loc")
 def loc():
     return render_template("library_of_congress.html",
                            project_name="Library of Congress",
                            current_time=datetime.datetime.utcnow())
+
 # Library of Congress
 @app.route("/library_of_congress")
 def library_of_congress():
@@ -727,45 +758,9 @@ def historical_debt_outstanding_annual_data():
         d["value"] = debt_outstanding_amt
 
         # Add president and color to the response.
-        if year >= 2021:
-            d["president"] = "placeholder"
-            d["color"] = "grey"
-        elif year >= 2017:
-            d["president"] = "Trump"
-            d["color"] = "red"
-        elif year >= 2009:
-            d["president"] = "Obama"
-            d["color"] = "blue"
-        elif year >= 2001:
-            d["president"] = "Bush"
-            d["color"] = "red"
-        elif year >= 1993:
-            d["president"] = "Clinton"
-            d["color"] = "blue"
-        elif year >= 1989:
-            d["president"] = "Bush"
-            d["color"] = "red"
-        elif year >= 1981:
-            d["president"] = "Reagan"
-            d["color"] = "red"
-        elif year >= 1977:
-            d["president"] = "Carter"
-            d["color"] = "blue"
-        elif year >= 1974:
-            d["president"] = "Ford"
-            d["color"] = "red"
-        elif year >= 1969:
-            d["president"] = "Nixon"
-            d["color"] = "red"
-        elif year >= 1963:
-            d["president"] = "Johnson"
-            d["color"] = "blue"
-        elif year >= 1961:
-            d["president"] = "Kennedy"
-            d["color"] = "blue"
-        else:
-            d["president"] = "Placeholder"
-            d["color"] = "grey"
+        o = pap.get_president_and_party(year)
+        d["president"] = o["president"]
+        d["color"] = o["color"]
                                    
     # Calculate scale.
     x = abs(response["scale"]["max_value"])
@@ -891,7 +886,7 @@ def get_receipts_less_outlays_data_from_website():
     # Populate the response data values from the budget data.
     # Determine the maximum and minimum values.
     for year in budget_data:
-
+ 
         # Filter on year parameters.
         if year < int(begin_year) or year > int(end_year):
             continue
@@ -916,45 +911,9 @@ def get_receipts_less_outlays_data_from_website():
         d["value"] = receipts_less_outlays
 
         # Add president and color to the response.
-        if year >= 2021:
-            d["president"] = "placeholder"
-            d["color"] = "grey"
-        elif year >= 2017:
-            d["president"] = "Trump"
-            d["color"] = "red"
-        elif year >= 2009:
-            d["president"] = "Obama"
-            d["color"] = "blue"
-        elif year >= 2001:
-            d["president"] = "Bush"
-            d["color"] = "red"
-        elif year >= 1993:
-            d["president"] = "Clinton"
-            d["color"] = "blue"
-        elif year >= 1989:
-            d["president"] = "Bush"
-            d["color"] = "red"
-        elif year >= 1981:
-            d["president"] = "Reagan"
-            d["color"] = "red"
-        elif year >= 1977:
-            d["president"] = "Carter"
-            d["color"] = "blue"
-        elif year >= 1974:
-            d["president"] = "Ford"
-            d["color"] = "red"
-        elif year >= 1969:
-            d["president"] = "Nixon"
-            d["color"] = "red"
-        elif year >= 1963:
-            d["president"] = "Johnson"
-            d["color"] = "blue"
-        elif year >= 1961:
-            d["president"] = "Kennedy"
-            d["color"] = "blue"
-        else:
-            d["president"] = "Placeholder"
-            d["color"] = "grey"
+        o = pap.get_president_and_party(year)
+        d["president"] = o["president"]
+        d["color"] = o["color"]
                                    
     # Calculate scale.
     x = abs(response["scale"]["max_value"])
