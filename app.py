@@ -51,21 +51,28 @@ def home():
     return render_template("index.html",
                            project_name="Portfolio",
                            current_time=datetime.datetime.utcnow())
-                                                
+                                                                     
+# Stable Matching Problem
+@app.route("/smp")
+def smp():
+    return render_template("stable_matching_problem.html",
+                           project_name="Stable Matching Problem",
+                           current_time=datetime.datetime.utcnow())
+                                                                                                                                                                                                                                        
 # Bureau of Economic Analysis
 @app.route("/bea")
 def bea():
     return render_template("bureau_of_economic_analysis.html",
                            project_name="Bureau of Economic Analysis",
                            current_time=datetime.datetime.utcnow())
-
+ 
 # Bureau of Economic Analysis
 @app.route("/bureau_of_economic_analysis")
 def bureau_of_economic_analysis():
-
+                        
     # Inport the module containing the class.
     from static.py import Bureau_of_Economic_Analysis
-
+  
     # Instantiate the class in the module.
     bea = Bureau_of_Economic_Analysis.Bureau_of_Economic_Analysis()
  
@@ -79,7 +86,7 @@ def bureau_of_economic_analysis():
         raise InternalServerError(message_from_the_application)
 
     # Get the embedded python list that will be used in the response.
-    return return_dictionary["response"]               
+    return return_dictionary["response"]                
 
 # Budget Treemap
 @app.route("/budget_treemap")
@@ -452,7 +459,7 @@ def mortgage():
     return render_template("examples_01.01.loancalc.html")
 
 # Mortgage Tutorial
-
+   
  
 @app.route("/mortgage_with_flask_bootstrap")
 def mortgage_boostrap():

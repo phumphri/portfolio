@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Data Driven Documents -->
+<script src="https://d3js.org/d3.v6.min.js" charset="utf-8"></script>
+
+<!-- Application Components -->
+<script src="/static/js/Stable_Matching_Problem/declare_global_variables.js" charset="utf-8"></script>
+<script src="/static/js/Stable_Matching_Problem/step_logic.js" charset="utf-8"></script>
+<script src="/static/js/Stable_Matching_Problem/move_icon.js" charset="utf-8"></script>
+<script src="/static/js/Stable_Matching_Problem/shuffle_array.js" charset="utf-8"></script>
+<script src="/static/js/Stable_Matching_Problem/create_svg.js" charset="utf-8"></script>
+<script src="/static/js/Stable_Matching_Problem/create_schools.js" charset="utf-8"></script>
+<script src="/static/js/Stable_Matching_Problem/create_students.js" charset="utf-8"></script>
+<script src="/static/js/Stable_Matching_Problem/create_commands.js" charset="utf-8"></script>
+
+{% endblock %}
+
+{% block title %}Stable Matching Problem{% endblock %}
+
+{% block body %}
+{{ super() }}
+
+<script>
+    declare_global_variables()
+    create_svg()
+    create_schools()
+    create_students()
+    create_commands()
+</script>
+
+{% endblock %}
