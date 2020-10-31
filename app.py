@@ -58,7 +58,7 @@ def smp():
     return render_template("stable_matching_problem.html",
                            project_name="Stable Matching Problem",
                            current_time=datetime.datetime.utcnow())
-                                                                                                                                                                                                                                        
+                                                                                                                                                                                                                                              
 # Bureau of Economic Analysis
 @app.route("/bea")
 def bea():

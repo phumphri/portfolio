@@ -78,7 +78,8 @@ function create_commands() {
                 student_name = o.student_names[student_index]
                 move_icon(student_name, student_name)
 
-            var s = "<ul>"
+            var s = "Gale-Shapley Algorithm"
+            s += "<ul>"
             s += "<li>Each school extends and offer to the the most preferred student in its list.</li>"
             s += "<li>If the student has yet to select a school, they accept the first offer.</li>"
             s += "<li>If the student has already accepted a previous offer, but the current offer is from a more preferred school, "
@@ -88,9 +89,8 @@ function create_commands() {
             s += "<li>The process continues until every school has a student that accepted their offer.</li>"
             s += "</ul>"
             s += "Note that the school usually settle for a lower preferred student while the student usually a higher preferred school."
-        
-            document.getElementById("explanation").innerHTML = s            
-
+            document.getElementById("explanation").innerHTML = s  
+            
             }
 
             for (var i in o.schools) {
@@ -114,8 +114,8 @@ function create_commands() {
     o.explanation = explanation_fieldset
         .append("p")
         .attr("id", "explanation")
-    
-    var s = "<ul>"
+    var s = "Gale-Shapley Algorithm"
+    s += "<ul>"
     s += "<li>Each school extends and offer to the the most preferred student in its list.</li>"
     s += "<li>If the student has yet to select a school, they accept the first offer.</li>"
     s += "<li>If the student has already accepted a previous offer, but the current offer is from a more preferred school, "
@@ -128,6 +128,26 @@ function create_commands() {
 
     document.getElementById("explanation").innerHTML = s
     
+    var instruction_fieldset = o.command_column.append("fieldset")
+
+    instruction_fieldset.append("legend").text("Instructions")
+
+    o.instruction = instruction_fieldset
+        .append("p")
+        .attr("id", "instructions")
+    
+    var s = "<ul>"
+    s += "<li>Schools on the left have a list of preferable students and a tile.</li>"
+    s += "<li>When a student is assigned to a shcool, its tile is moved to the school, and the school tile is moved to the student.</li>"
+    s += "<li>Click on the Step button to start the algorithm.</li>"
+    s += "<li>The results of the first step will appear in the Explanation section..</li>"
+    s += "<li>The tiles that move indicate which school aceepts a student and which school the student intends to matriculate.</li>"
+    s += "<li>Continue clicking the Step button while watching the tiles and reading the explanations.</li>"
+    s += "<li>No further changes will be made when a stable matching is achived and reported in the Explanation section.</li>"
+    s += "<li>Clicking the Reset button restores the tiles and shuffles the preferences.</li>"
+    s += "</ul>"
+
+    document.getElementById("instructions").innerHTML = s
 
  
 
