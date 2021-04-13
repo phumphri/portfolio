@@ -1,4 +1,3 @@
-templates/sandbox_deprecated.html
 __pycache__
 static/py/__pycache__
 .gitignore
