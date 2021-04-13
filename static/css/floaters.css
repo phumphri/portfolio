@@ -52,3 +52,10 @@ button {
     color: yellow
 }
 
+table, th, td {
+    border: 1px solid black;
+}
+/* .visible {visibility: visible} */
+
+/* .hidden {visibility: hidden} */
+

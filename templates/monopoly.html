@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+
+<!-- Data Drive Documents -->
+<script src="https://d3js.org/d3.v6.min.js" charset="utf-8"></script>
+
+<!-- Application Components -->
+<script src="/static/js/Monopoly/main.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/draw_properties.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/draw_players.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/select_player.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/roll_dice.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/move_piece.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/move_other_piece.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/get_queue.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/append_queue.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/change_balance.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/process_trade_transaction.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/create_trade_screen.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/create_auction_screen.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/process_community_chest_event.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/process_chance_event.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/clone_and_move_property_icon_to_trade_screen.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/create_bank_column.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/process_trade_requests.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/update_property_mortgaged.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/set_property_mortgaged.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/process_pay_request.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/process_auction_transaction.js" charset="utf-8"></script>
+<script src="/static/js/Monopoly/process_building_and_selling.js" charset="utf-8"></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+{% endblock %}
+
+{% block title %}Monopoly{% endblock %}
+
+{% block body %}
+{{ super() }}
+<script>
+    d3.select("body").attr("onload", "main()")
+        // .attr("onresize", "main()")
+</script>
+{% endblock %}

@@ -2,99 +2,33 @@
 
 {% extends "base.html" %}
 
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block title %}Monopoly{% endblock %}
+
 {% block body %}
 {{ super() }}
+
+<script>window.name = "Monopoly"</script>
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-6">
-            <h4>Visualizations</h4>
+            <h4>Monopoly</h4>
             <table class="table">
                 <tbody>
                     <tr>
                         <td>
-                            <a href="./receipts_less_outlays" target="_blank">Nationl Budget</a>
+                            <a href="./monopoly_games" target="_blank">Monopoly Games</a>
                         </td>
                         <td>
-                            Historical Receipts less Outlays</br>
-                            <a href="https://www.whitehouse.gov/wp-content/uploads/2020/02/receipts_fy21.xlsx">
-                                https://www.whitehouse.gov/wp-content/uploads/2020/02/receipts_fy21.xlsx</a></br>
-                            <a href="https://www.whitehouse.gov/wp-content/uploads/2020/02/outlays_fy21.xlsx">
-                                https://www.whitehouse.gov/wp-content/uploads/2020/02/outlays_fy21.xlsx</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <a href="./historical_debt_outstanding_annual" target="_blank">National Debt</a>
-                        </td>
-                        <td>
-                            Historical Debt Outstanding Annual</br>
-                            <a href="https://fiscaldata.treasury.gov/datasets/historical-debt-outstanding/historical-debt-outstanding"
-                                target="_blank">https://fiscaldata.treasury.gov/datasets/historical-debt-outstanding/historical-debt-outstanding</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <a href="./budget_treemap" target="_blank">National Spending</a>
-                        </td>
-                        <td>
-                            USA Spending</br>
-                            <a href="http://api.usaspending.gov"
-                                target="_blank">http://api.usaspending.gov</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <a href="./bea" target="_blank">GDP</a>
-                        </td>
-                        <td>
-                            Bureau of Economic Analysis</br>
-                            <a href="https://www.bea.gov"
-                                target="_blank">https://www.bea.gov</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <a href="./loc" target="_blank">Search</a>
-                        </td>
-                        <td>
-                            Library of Congress</br>
-                            <a href="https://www.loc.gov"
-                                target="_blank">https://www.loc.gov</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <a href="./electoral_college" target="_blank">Electoral College 2020</a>
-                        </td>
-                        <td>
-                            Electoral College using leaflet.js.<br/>
-                            Interactive tally of state panels.
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <a href="https://humphries-portfolio.herokuapp.com/inf554/index" target="_blank">Assignments</a>
-                        </td>
-                        <td>
-                            University of Southern California</br>
-                            INF554:  Data Visualization</br>
-                            Index of assignments.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-sm-6">
-            <h4>Algorithms</h4>
-            <table class="table">
-                <tbody>
-                    <tr>
-                        <td>
-                            <a href="./smp" target="_blank">SMP</a>
-                        </td>
-                        <td>
-                            Stable Matching Problem</br>
-                            The application of the Gale-Shaply Algorithm to match schools and students.
+                            Multiple-player game over the Internet.</br>
+                            Flask and D3 technology stack.
+                            <!--    When clicking "Monopoly Games" link on the index.html, the monopoly_games.html page is rendered by the server.
+                                    When the "Start" button is pressed, the monopoly.html is rendered for that player and the server is updated.
+                                    When the monopoly.html is rendered, the main.js is executed and the board is rendered.
+                            -->
                         </td>
                     </tr>
                 </tbody>

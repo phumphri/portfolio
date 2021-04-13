@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block title %}Monopoly Games{% endblock %}
+
+{% block body %}
+{{ super() }}
+
+<script>window.name = "Monopoly"</script>
+
+<script>
+
+    function process_radio_buttons(radio_button_id) {
+
+        console.log("radio_button_id:", radio_button_id)
+
+        // When selecting "you", you must be a "player".
+        if (document.getElementById("game_1_you_car").checked) { document.getElementById("game_1_player_car").checked = true }
+        else if (document.getElementById("game_1_you_top_hat").checked) { document.getElementById("game_1_player_top_hat").checked = true }
+        else if (document.getElementById("game_1_you_shoe").checked) { document.getElementById("game_1_player_shoe").checked = true }
+        else if (document.getElementById("game_1_you_dog").checked) { document.getElementById("game_1_player_dog").checked = true }
+
+        if (document.getElementById("game_2_you_car").checked) { document.getElementById("game_2_player_car").checked = true }
+        else if (document.getElementById("game_2_you_top_hat").checked) { document.getElementById("game_2_player_top_hat").checked = true }
+        else if (document.getElementById("game_2_you_shoe").checked) { document.getElementById("game_2_player_shoe").checked = true }
+        else if (document.getElementById("game_2_you_dog").checked) { document.getElementById("game_2_player_dog").checked = true }
+
+        if (document.getElementById("game_3_you_car").checked) { document.getElementById("game_3_player_car").checked = true }
+        else if (document.getElementById("game_3_you_top_hat").checked) { document.getElementById("game_3_player_top_hat").checked = true }
+        else if (document.getElementById("game_3_you_shoe").checked) { document.getElementById("game_3_player_shoe").checked = true }
+        else if (document.getElementById("game_3_you_dog").checked) { document.getElementById("game_3_player_dog").checked = true }
+
+        if (document.getElementById("game_4_you_car").checked) { document.getElementById("game_4_player_car").checked = true }
+        else if (document.getElementById("game_4_you_top_hat").checked) { document.getElementById("game_4_player_top_hat").checked = true }
+        else if (document.getElementById("game_4_you_shoe").checked) { document.getElementById("game_4_player_shoe").checked = true }
+        else if (document.getElementById("game_4_you_dog").checked) { document.getElementById("game_4_player_dog").checked = true }
+
+    }
+
+    function process_start_button(game_key) {
+
+        console.log("game_key:", game_key)
+
+        var player_key = null
+
+        // Get the player key based on the game key and the "you" radio button.
+        if (document.getElementById(game_key.concat("_you_car")).checked) { player_key = "car" }
+        else if (document.getElementById(game_key.concat("_you_top_hat")).checked) { player_key = "top_hat" }
+        else if (document.getElementById(game_key.concat("_you_shoe")).checked) { player_key = "shoe" }
+        else { player_key = "dog" }
+
+        // The server renders monopoly.html, which in turn executes main.js which renders the board.
+        board = window.open("./monopoly", game_key, player_key)
+
+        // TODO: Come back to here after setting up Github.
+
+    }
+
+
+</script>
+
+<div class="container-fluid" onload="update_buttons_and_status()">
+
+    <div class="row">
+        <div class="col-sm-4">
+            <h4>Game 1: Available</h4>
+            <button type="button" id="button_1" class="btn btn-primary" onclick="process_start_button('game_1')">Start</button>
+            <table class="table table-dark">
+                <thead>
+                    <tr>
+                        <th scope="col">Role</th>
+                        <th scope="col">Car</th>
+                        <th scope="col">Top Hat</th>
+                        <th scope="col">Shoe</th>
+                        <th scope="col">Dog</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <th scope="row">Player</th>
+                        <td><input type="radio" id="game_1_player_car" name="game_1_car" onclick="process_radio_buttons('game_1_player_car')"></td>
+                        <td><input type="radio" id="game_1_player_top_hat" name="game_1_top_hat" onclick="process_radio_buttons('game_1_player_top_hat')"></td>
+                        <td><input type="radio" id="game_1_player_shoe" name="game_1_shoe" onclick="process_radio_buttons('game_1_player_shoe')"></td>
+                        <td><input type="radio" id="game_1_player_dog" name="game_1_dog" onclick="process_radio_buttons('game_1_player_dog')"></td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">Bot</th>
+                        <td><input type="radio" id="game_1_bot_car" name="game_1_car" onclick="process_radio_buttons('game_1_bot_car')"></td>
+                        <td><input type="radio" id="game_1_bot_top_hat" name="game_1_top_hat" onclick="process_radio_buttons('game_1_bot_top_hat')"></td>
+                        <td><input type="radio" id="game_1_bot_shoe" name="game_1_shoe" onclick="process_radio_buttons('game_1_bot_shoe')"></td>
+                        <td><input type="radio" id="game_1_bot_dog" name="game_1_dog" onclick="process_radio_buttons('game_1_bot_dog')"></td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">You</th>
+                        <td><input type="radio" id="game_1_you_car" name="game_1_you" 
+                            
+                            onclick="process_radio_buttons('game_1_you_car')">
+                        
+                        </td>
+                        <td><input type="radio" id="game_1_you_top_hat" name="game_1_you" onclick="process_radio_buttons('game_1_you_top_hat')"></td>
+                        <td><input type="radio" id="game_1_you_shoe" name="game_1_you" onclick="process_radio_buttons('game_1_you_shoe')"></td>
+                        <td><input type="radio" id="game_1_you_dog" name="game_1_you" onclick="process_radio_buttons('game_1_you_dog')"></td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-sm-4">
+            <h4>Game 2: Available</h4>
+            <button type="button" id="button_2" class="btn btn-primary" onclick="process_start_button('game_2')">Start</button>
+            <table class="table table-dark">
+                <thead>
+                    <tr>
+                        <th scope="col">Role</th>
+                        <th scope="col">Car</th>
+                        <th scope="col">Top Hat</th>
+                        <th scope="col">Shoe</th>
+                        <th scope="col">Dog</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <th scope="row">Player</th>
+                        <td><input type="radio" id="game_2_player_car" name="game_2_car" onclick="process_radio_buttons('game_2_player_car')"></td>
+                        <td><input type="radio" id="game_2_player_top_hat" name="game_2_top_hat" onclick="process_radio_buttons('game_2_player_top_hat')"></td>
+                        <td><input type="radio" id="game_2_player_shoe" name="game_2_shoe" onclick="process_radio_buttons('game_2_player_shoe')"></td>
+                        <td><input type="radio" id="game_2_player_dog" name="game_2_dog" onclick="process_radio_buttons('game_2_player_dog')"></td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">Bot</th>
+                        <td><input type="radio" id="game_2_bot_car" name="game_2_car" onclick="process_radio_buttons('game_2_bot_car')"></td>
+                        <td><input type="radio" id="game_2_bot_top_hat" name="game_2_top_hat" onclick="process_radio_buttons('game_2_bot_top_hat')"></td>
+                        <td><input type="radio" id="game_2_bot_shoe" name="game_2_shoe" onclick="process_radio_buttons('game_2_bot_shoe')"></td>
+                        <td><input type="radio" id="game_2_bot_dog" name="game_2_dog" onclick="process_radio_buttons('game_2_bot_dog')"></td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">You</th>
+                        <td><input type="radio" id="game_2_you_car" name="game_2_you" onclick="process_radio_buttons('game_2_you_car')"></td>
+                        <td><input type="radio" id="game_2_you_top_hat" name="game_2_you" onclick="process_radio_buttons('game_2_you_top_hat')"></td>
+                        <td><input type="radio" id="game_2_you_shoe" name="game_2_you" onclick="process_radio_buttons('game_2_you_shoe')"></td>
+                        <td><input type="radio" id="game_2_you_dog" name="game_2_you" onclick="process_radio_buttons('game_2_you_dog')"></td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-sm-4">
+            <h4>Game 3: Available</h4>
+            <button type="button" id="button_3" class="btn btn-primary" onclick="process_start_button('game_3')">Start</button>
+            <table class="table table-dark">
+                <thead>
+                    <tr>
+                        <th scope="col">Role</th>
+                        <th scope="col">Car</th>
+                        <th scope="col">Top Hat</th>
+                        <th scope="col">Shoe</th>
+                        <th scope="col">Dog</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <th scope="row">Player</th>
+                        <td><input type="radio" id="game_3_player_car" name="game_3_car" onclick="process_radio_buttons('game_3_player_car')"></td>
+                        <td><input type="radio" id="game_3_player_top_hat" name="game_3_top_hat" onclick="process_radio_buttons('game_3_player_top_hat')"></td>
+                        <td><input type="radio" id="game_3_player_shoe" name="game_3_shoe" onclick="process_radio_buttons('game_3_player_shoe')"></td>
+                        <td><input type="radio" id="game_3_player_dog" name="game_3_dog" onclick="process_radio_buttons('game_3_player_dog')"></td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">Bot</th>
+                        <td><input type="radio" id="game_3_bot_car" name="game_3_car" onclick="process_radio_buttons('game_3_bot_car')"></td>
+                        <td><input type="radio" id="game_3_bot_top_hat" name="game_3_top_hat" onclick="process_radio_buttons('game_3_bot_top_hat')"></td>
+                        <td><input type="radio" id="game_3_bot_shoe" name="game_3_shoe" onclick="process_radio_buttons('game_3_bot_shoe')"></td>
+                        <td><input type="radio" id="game_3_bot_dog" name="game_3_dog" onclick="process_radio_buttons('game_3_bot_dog')"></td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">You</th>
+                        <td><input type="radio" id="game_3_you_car" name="game_3_you" onclick="process_radio_buttons('game_3_you_car')"></td>
+                        <td><input type="radio" id="game_3_you_top_hat" name="game_3_you" onclick="process_radio_buttons('game_3_you_top_hat')"></td>
+                        <td><input type="radio" id="game_3_you_shoe" name="game_3_you" onclick="process_radio_buttons('game_3_you_shoe')"></td>
+                        <td><input type="radio" id="game_3_you_dog" name="game_3_you" onclick="process_radio_buttons('game_3_you_dog')"></td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-sm-4">
+            <h4>Game 4: Available</h4>
+            <button type="button" id="button_4" class="btn btn-primary" onclick="process_start_button('game_4')">Start</button>
+            <table class="table ttable-dark">
+                <thead>
+                    <tr>
+                        <th scope="col">Role</th>
+                        <th scope="col">Car</th>
+                        <th scope="col">Top Hat</th>
+                        <th scope="col">Shoe</th>
+                        <th scope="col">Dog</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <th scope="row">Player</th>
+                        <td><input type="radio" id="game_4_player_car" name="game_4_car" onclick="process_radio_buttons('game_4_player_car')"></td>
+                        <td><input type="radio" id="game_4_player_top_hat" name="game_4_top_hat" onclick="process_radio_buttons('game_4_player_top_hat')"></td>
+                        <td><input type="radio" id="game_4_player_shoe" name="game_4_shoe" onclick="process_radio_buttons('game_4_player_shoe')"></td>
+                        <td><input type="radio" id="game_4_player_dog" name="game_4_dog" onclick="process_radio_buttons('game_4_player_dog')"></td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">Bot</th>
+                        <td><input type="radio" id="game_4_bot_car" name="game_4_car" onclick="process_radio_buttons('game_4_bot_car')"></td>
+                        <td><input type="radio" id="game_4_bot_top_hat" name="game_4_top_hat" onclick="process_radio_buttons('game_4_bot_top_hat')"></td>
+                        <td><input type="radio" id="game_4_bot_shoe" name="game_4_shoe" onclick="process_radio_buttons('game_4_bot_shoe')"></td>
+                        <td><input type="radio" id="game_4_bot_dog" name="game_4_dog" onclick="process_radio_buttons('game_4_bot_dog')"></td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">You</th>
+                        <td><input type="radio" id="game_4_you_car" name="game_4_you" onclick="process_radio_buttons('game_4_you_car')"></td>
+                        <td><input type="radio" id="game_4_you_top_hat" name="game_4_you" onclick="process_radio_buttons('game_4_you_top_hat')"></td>
+                        <td><input type="radio" id="game_4_you_shoe" name="game_4_you" onclick="process_radio_buttons('game_4_you_shoe')"></td>
+                        <td><input type="radio" id="game_4_you_dog" name="game_4_you" onclick="process_radio_buttons('game_4_you_dog')"></td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    console.log("Update buttons and status.")
+
+</script>
+
+{% endblock %}
